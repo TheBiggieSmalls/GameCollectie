@@ -272,7 +272,8 @@ label.file{cursor:pointer}
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-const key=s=>norm(s).replace(/[^a-z0-9]/g,'');
+const ROM={ii:2,iii:3,iv:4,v:5,vi:6,vii:7,viii:8,ix:9,x:10};
+const key=s=>norm(s).replace(/&/g,' and ').replace(/\b(ii|iii|iv|v|vi|vii|viii|ix|x)\b/g,m=>ROM[m]).replace(/^the\s+/,'').replace(/[^a-z0-9]/g,'');
 const eur=new Intl.NumberFormat('nl-BE',{style:'currency',currency:'EUR'});
 const nl=n=>n.toLocaleString('nl-BE');
 const collator=new Intl.Collator('nl',{numeric:true,sensitivity:'base'});
@@ -318,10 +319,16 @@ const GDB={};
 const ALIAS={cube:'Gamecube','nintendo-gamecube':'Gamecube','wii-u':'WiiU',xbox:'XBOX','xbox-original':'XBOX','xbox-360':'XBOX360',steam:['Steam','Windows'],pc:['Windows','Steam'],'epic-games':['Windows','Steam'],gog:['Windows','Steam']};
 function loadDB(c){const k=slug(c);if(!k)return Promise.resolve(null);
   return GDB[k]??=(async()=>{const names=[].concat(ALIAS[k]||c.trim().replace(/\s+/g,''));
+    const mk=a=>{const list=a.map(toRec).filter(x=>x.t),map=new Map();list.forEach(x=>map.has(x.n)||map.set(x.n,x));return{list,map}};
+    for(const n of names){try{const a=await idb.get('db:'+n.toLowerCase());if(Array.isArray(a))return mk(a)}catch{}}
     for(const u of[...names.map(n=>`db/${n}Games.json`),`db/${k}.json`]){
-      try{const r=await fetch(u);if(!r.ok)continue;const list=(await r.json()).map(toRec).filter(x=>x.t),map=new Map();
-        list.forEach(x=>map.has(x.n)||map.set(x.n,x));return{list,map}}catch{}}return null})()}
+      try{const r=await fetch(u);if(!r.ok)continue;const a=await r.json();if(Array.isArray(a))return mk(a)}catch{}}
+    return null})()}
 const metaOf=r=>{const m={v:2};for(const k of['y','d','dl','p','pl','pf','pfl','l'])if(r[k])m[k]=String(r[k]);if(m.pf)m.pf=m.pf.replace(/^the\s+/i,'');return Object.keys(m).length>1?m:null};
+async function importDBs(files){let n=0;
+  for(const f of files){const m=f.name.match(/^(.*?)Games\.json$/i);if(!m)continue;
+    try{const a=JSON.parse(await f.text());if(Array.isArray(a)){await idb.set('db:'+m[1].toLowerCase(),a);n++}}catch{}}
+  Object.keys(GDB).forEach(k=>delete GDB[k]);const e=await enrich();toast(`${n} databases geladen, ${e} games aangevuld`);renderData()}
 async function enrich(){let n=0;
   for(const c of new Set(items.filter(i=>i.kind==='game'&&(!i.meta||i.meta.v!==2)).map(i=>i.console))){
     const db=await loadDB(c);if(!db)continue;
@@ -416,11 +423,13 @@ function detail(id){cur=find(id);if(!cur)return;const it=cur,m=it.meta;
     <p class="big">${it.digital?'':eur.format(it.price||0)}</p>
     ${it.extra?`<p class="note">${esc(it.extra)}</p>`:''}
     ${rows?`<dl class="meta">${rows}</dl>`:''}
+    ${!m&&it.kind==='game'?'<p class="saved" id="dbnote"></p>':''}
   </div></div>
   <div class="rev" style="margin-top:18px"><h3>Jouw beoordeling</h3>
     <div class="stars" role="group" aria-label="Beoordeling">${[1,2,3,4,5].map(n=>`<button data-star="${n}" aria-label="${n} ${n===1?'ster':'sterren'}" class="${n<=it.rating?'on':''}">★</button>`).join('')}</div>
     <textarea id="rev" placeholder="Wat vond je ervan?" aria-label="Review">${esc(it.review)}</textarea><div class="saved" id="saved"></div></div>
-  <div class="actions"><button class="ghost" data-edit>Bewerken</button><button class="danger" data-del>Verwijderen</button></div>`)}
+  <div class="actions"><button class="ghost" data-edit>Bewerken</button><button class="danger" data-del>Verwijderen</button></div>`);
+  if(it.kind==='game'&&!m)loadDB(it.console).then(db=>{const n=$('#dbnote');if(n)n.textContent=db?'Geen match in de database gevonden. Kies Bewerken en selecteer de juiste titel uit de suggesties.':`Geen database geladen voor ${it.console}. Laad die via Gegevens.`})}
 const flash=t=>{const s=$('#saved');if(s){s.textContent=t;clearTimeout(flash.t);flash.t=setTimeout(()=>s.textContent='',1800)}};
 function rate(n){cur.rating=cur.rating===n?0:n;$$('[data-star]',sheet).forEach(b=>b.classList.toggle('on',+b.dataset.star<=cur.rating));save();renderCatalog();flash('Opgeslagen')}
 const saveReview=()=>{const v=$('#rev')?.value;if(cur&&v!==undefined&&v!==cur.review){cur.review=v;save();flash('Opgeslagen')}};
@@ -502,10 +511,16 @@ function renderData(){
     <div class="row"><label class="ghost file">Excel importeren<input type="file" id="imp" accept=".xlsx,.xls" hidden></label><button class="primary" id="exp">Excel exporteren</button></div></div>
   <div class="panel"><h2>Back-up</h2><p>Volledige back-up inclusief covers (JSON).</p>
     <div class="row"><button class="ghost" id="bk">Back-up maken</button><label class="ghost file">Back-up terugzetten<input type="file" id="rs" accept=".json" hidden></label></div></div>
-  <div class="panel"><h2>Titeldatabases</h2><p>Games worden aangevuld met alle info uit <code>db/&lt;Console&gt;Games.json</code> (bijv. <code>db/PS4Games.json</code>), zoals jaar, platform, ontwikkelaar en uitgever.</p>
-    <div class="row"><button class="ghost" id="en">Nu aanvullen</button></div></div>
+  <div class="panel"><h2>Titeldatabases</h2><p>Kies je <code>...Games.json</code>-bestanden (meerdere tegelijk, bijv. <code>PS1Games.json</code>). Ze worden op dit toestel bewaard en geven autocomplete en extra info (jaar, platform, ontwikkelaar, uitgever). Werkt ook zonder server.</p>
+    <div class="row"><label class="primary file">JSON-bestanden kiezen<input type="file" id="dbf" accept=".json" multiple hidden></label><button class="ghost" id="en">Games opnieuw koppelen</button></div>
+    <div id="dbstat" style="margin-top:14px"></div></div>
   <div class="panel"><h2>App</h2><p>${installEvt?'Installeer deze collectie op je beginscherm.':navigator.serviceWorker?.controller?'Offline beschikbaar. Installeren kan via het browsermenu.':'Offline modus wordt ingesteld na het eerste bezoek via http(s).'}</p>
-    <div class="row">${installEvt?'<button class="primary" id="inst">Installeren</button>':''}<button class="danger" id="wipe">Alle gegevens wissen</button></div></div>`}
+    <div class="row">${installEvt?'<button class="primary" id="inst">Installeren</button>':''}<button class="danger" id="wipe">Alle gegevens wissen</button></div></div>`;dbStatus()}
+async function dbStatus(){const el=$('#dbstat');if(!el)return;
+  const cons=[...new Set(items.filter(i=>i.kind==='game').map(i=>i.console))].sort(cmpCon);
+  const rows=await Promise.all(cons.map(async c=>{const db=await loadDB(c),g=items.filter(i=>i.kind==='game'&&i.console===c);
+    return`<tr><td>${esc(c)}</td><td>${db?nl(db.list.length)+' titels':'<span class="mute">niet geladen</span>'}</td><td class="n">${g.filter(i=>i.meta).length}/${g.length}</td></tr>`}));
+  if($('#dbstat'))$('#dbstat').innerHTML=`<table class="otable" style="margin:0"><thead><tr><th>Console</th><th>Database</th><th class="n">Gekoppeld</th></tr></thead><tbody>${rows.join('')}</tbody></table>`}
 
 /* ---------- router + events ---------- */
 const PAGES=['collectie','overzicht','gegevens'];
@@ -547,6 +562,7 @@ document.addEventListener('change',async e=>{const t=e.target,f=t.files?.[0];
   else if(t.id==='imp'&&f){try{await loadXLSX();const next=fromWorkbook(XLSX.read(await f.arrayBuffer(),{type:'array'}));
     if(!next.length)return toast('Geen geldige rijen gevonden');
     if(confirm(`Huidige collectie (${items.length}) vervangen door ${next.length} items uit dit bestand?`)){adopt(next);toast(`${next.length} items geïmporteerd`)}}catch(err){toast(err.message)}t.value=''}
+  else if(t.id==='dbf'&&t.files.length){await importDBs(t.files);t.value=''}
   else if(t.id==='rs'&&f){try{const j=JSON.parse(await f.text());if(!Array.isArray(j))throw 0;if(confirm(`Back-up met ${j.length} items terugzetten?`)){items=j;save();render();toast('Teruggezet')}}catch{toast('Ongeldige back-up')}t.value=''}});
 $('#q').addEventListener('input',debounce(e=>{F.q=e.target.value.trim();renderCatalog()},120));
 ['pmin','pmax'].forEach(id=>$('#'+id).addEventListener('input',debounce(()=>{F.min=$('#pmin').value;F.max=$('#pmax').value;renderCatalog()},200)));
