@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Game Collectie</title>
+<meta name="theme-color" content="#15171c">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#15171c;--bg2:#1b1e25;--card:#20242c;--line:#2e333e;--text:#ebe8e1;--mute:#9aa0ad;--star:#f2b84b;--focus:#8ea2ff;--danger:#ff8585;--r:10px;
+  --hd:'Bricolage Grotesque',system-ui,sans-serif;--bd:Figtree,system-ui,-apple-system,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:120px}
+body{margin:0;background:var(--bg);color:var(--text);font:400 15px/1.45 var(--bd);padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+h1,h2,h3,h4{font-family:var(--hd);margin:0;line-height:1.15}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+[hidden]{display:none!important}
+.wrap{max-width:1280px;margin:0 auto;padding:0 16px}
+.mute{color:var(--mute)}
+svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* header + nav */
+.top{position:sticky;top:0;z-index:30;background:var(--bg2);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
+.bar{display:flex;align-items:center;gap:24px;height:56px}
+.brand{font:800 1.15rem var(--hd);text-decoration:none;display:flex;align-items:center;gap:10px;margin-right:auto}
+.dots{display:grid;grid-template-columns:repeat(2,8px);gap:2px}
+.dots b{width:8px;height:8px;border-radius:2px}
+.tabs{display:flex;gap:4px}
+.tabs a,.dock a{text-decoration:none;color:var(--mute)}
+.tabs a{padding:8px 14px;border-radius:8px;font-weight:500}
+.tabs a:hover{color:var(--text)}
+[aria-current=page]{color:var(--text)!important}
+.tabs [aria-current=page]{background:var(--card)}
+.dock{position:fixed;bottom:0;left:0;right:0;z-index:30;display:none;background:var(--bg2);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.dock a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 0 8px;font-size:.72rem}
+.dock [aria-current=page] svg{stroke:var(--star)}
+
+/* buttons / inputs */
+.primary,.ghost,.danger{border-radius:8px;border:1px solid transparent;padding:9px 16px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.primary{background:var(--text);color:#15171c}
+.primary:hover{background:#fff}
+.ghost{background:transparent;border-color:var(--line)}
+.ghost:hover{background:var(--card)}
+.danger{background:transparent;color:var(--danger);border-color:transparent}
+.danger[data-armed]{border-color:var(--danger)}
+input:not([type=checkbox]):not([type=radio]),select,textarea{width:100%;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px}
+input:not([type=checkbox]):not([type=radio]):focus,select:focus,textarea:focus{outline:2px solid var(--focus);outline-offset:0;border-color:transparent}
+textarea{resize:vertical}
+input[type=checkbox],input[type=radio]{accent-color:#c9c4b8;width:16px;height:16px;margin:0}
+
+/* toolbar */
+.toolbar{position:sticky;top:calc(56px + env(safe-area-inset-top));z-index:20;background:var(--bg);display:flex;gap:10px;padding:14px 0 10px;flex-wrap:wrap}
+.search{position:relative;flex:1 1 260px}
+.search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--mute)}
+.search svg{pointer-events:none}
+#q{padding-left:42px}
+.toolbar select{width:auto;flex:0 0 auto;padding-right:30px}
+#fopen{display:none}
+.seg{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button,.seg label{border:0;background:none;padding:6px 16px;border-radius:999px;color:var(--mute);font-weight:500}
+.seg .on{background:var(--text);color:#15171c}
+.kindbar{padding-bottom:12px}
+.layout{display:grid;grid-template-columns:250px 1fr;gap:32px;align-items:start}
+
+/* filters */
+#filters{position:sticky;top:130px;max-height:calc(100dvh - 150px);overflow:auto;padding-right:6px}
+#filters section{padding:0 0 18px;margin-bottom:18px;border-bottom:1px solid var(--line)}
+#filters h3{font-size:.95rem;margin-bottom:10px}
+#filters h4{font:600 .8rem var(--bd);color:var(--mute);margin:12px 0 4px}
+.fhead,.fdone{display:none}
+.opt{display:flex;align-items:center;gap:9px;padding:5px 0;cursor:pointer}
+.opt i{width:10px;height:10px;border-radius:3px;flex:none}
+.opt span{flex:1}
+.opt small{color:var(--mute)}
+.pr{display:flex;gap:8px}
+.chk{display:flex;align-items:center;gap:9px}
+.type-radios{display:flex;flex-direction:column;gap:8px}
+#fback{display:none}
+
+/* results */
+.rbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;min-height:32px}
+#count{color:var(--mute)}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:3px 10px;font-size:.85rem}
+.chip:hover{border-color:var(--mute)}
+.grp{content-visibility:auto;contain-intrinsic-size:auto 600px;margin-bottom:34px}
+.grp h2{font-size:1.25rem;display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.grp h2 i{width:12px;height:12px;border-radius:3px}
+.grp h2 small{font:400 .9rem var(--bd);color:var(--mute)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:18px 16px}
+.card{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:10px;padding:8px;border-radius:var(--r);position:relative}
+.card:hover{background:var(--card)}
+.card:focus-visible{outline:2px solid var(--focus)}
+.cover{position:relative;aspect-ratio:3/4;border-radius:6px;overflow:hidden;display:flex;container-type:inline-size;background:linear-gradient(165deg,var(--c1),var(--c2));box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 6px 14px rgba(0,0,0,.35)}
+.cover.img{background:var(--card)}
+.cover img{width:100%;height:100%;object-fit:cover}
+.spine{flex:0 0 15%;background:rgba(0,0,0,.3);writing-mode:vertical-rl;transform:rotate(180deg);display:flex;align-items:center;justify-content:center;font:700 clamp(.6rem,7cqw,.85rem) var(--bd);color:#fff;padding:6px 0;overflow:hidden;white-space:nowrap}
+.face{flex:1;display:flex;align-items:flex-end;padding:9cqw;font:800 clamp(.7rem,10.5cqw,1.4rem)/1.08 var(--hd);color:#fff;overflow:hidden;overflow-wrap:anywhere;min-width:0}
+.face b{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden;font-weight:inherit}
+.tag{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.65);border-radius:5px;padding:1px 7px;font-size:.72rem;font-weight:600;color:#fff}
+.m{display:flex;flex-direction:column;gap:3px;min-width:0}
+.t{font-weight:600;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.card:not(.hasimg) .t{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.m1{display:flex;justify-content:space-between;gap:8px;font-size:.85rem;color:var(--mute)}
+.price{color:var(--text);font-weight:600}
+.st{letter-spacing:1px;color:#444a57;font-size:.85rem;line-height:1}
+.st b{color:var(--star);font-weight:400}
+.empty{text-align:center;padding:60px 16px;color:var(--mute)}
+.empty h2{color:var(--text);margin-bottom:8px}
+.empty .primary,.empty .ghost{margin:14px 4px 0}
+
+/* sheet */
+dialog{border:1px solid var(--line);background:var(--bg2);color:var(--text);border-radius:16px;padding:0;width:calc(100% - 24px);max-width:720px;max-height:92dvh;overflow:auto}
+dialog::backdrop{background:rgba(5,6,9,.72)}
+dialog[open]{animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(24px);opacity:0}}
+.sh{padding:22px}
+.x{float:right;background:none;border:0;font-size:1.8rem;line-height:1;color:var(--mute);padding:0 4px;margin:-6px -4px 0 0}
+.detail{display:grid;grid-template-columns:170px 1fr;gap:22px}
+.dinfo{min-width:0}
+.dinfo h2{font-size:1.6rem;margin:0 28px 10px 0}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.tags span{border:1px solid var(--line);border-radius:999px;padding:2px 11px;font-size:.85rem}
+.big{font:800 1.4rem var(--hd);margin-bottom:8px}
+.note{background:var(--card);border-radius:var(--r);padding:10px 12px;margin:0 0 14px}
+dl.meta{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0 0 16px}
+dl.meta dt{color:var(--mute)}
+dl.meta dd{margin:0}
+dl.meta a{color:var(--focus)}
+.rev h3{font-size:1rem;margin-bottom:6px}
+.stars{display:flex;gap:2px;margin-bottom:10px}
+.stars button{background:none;border:0;font-size:2rem;line-height:1;color:#444a57;padding:0 2px}
+.stars button.on{color:var(--star)}
+.rev textarea{min-height:84px}
+.saved{font-size:.85rem;color:var(--mute);min-height:1.2em;margin-top:4px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.actions .danger{margin-left:auto}
+form .f{display:block;margin-bottom:14px}
+form .f>span{display:block;margin-bottom:5px;font-weight:500}
+form .two{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:end}
+form .two .chk{padding-bottom:11px}
+form[data-kind=hw] .dig{display:none}
+.ac{position:relative}
+.ac ul{position:absolute;left:0;right:0;top:100%;z-index:5;margin:4px 0 0;padding:4px;list-style:none;background:var(--card);border:1px solid var(--line);border-radius:var(--r);max-height:260px;overflow:auto;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.ac li{padding:8px 10px;border-radius:7px;cursor:pointer;display:flex;flex-direction:column}
+.ac li small{color:var(--mute)}
+.ac li.on,.ac li:hover{background:#2a2f3a}
+.hint{font-size:.85rem;color:var(--mute);margin-top:5px;display:flex;gap:6px;flex-wrap:wrap}
+.hint .chip{font-size:.8rem}
+.cf{display:flex;align-items:center;gap:14px}
+.cf .cover{width:70px;flex:none}
+.cf>div{display:flex;flex-direction:column;gap:8px;align-items:flex-start;min-width:0}
+
+/* overview + data */
+.page{padding-top:26px}
+.page h1{font-size:clamp(1.6rem,4vw,2.4rem);margin-bottom:6px;max-width:30ch}
+.page>p{max-width:62ch}
+.otable{width:100%;border-collapse:collapse;margin:8px 0 34px}
+.otable caption{text-align:left;font:800 1.2rem var(--hd);padding:18px 0 8px}
+.otable th{text-align:left;font-weight:500;color:var(--mute);padding:8px 10px;border-bottom:1px solid var(--line)}
+.otable td{padding:10px;border-bottom:1px solid var(--line)}
+.otable .n{text-align:right;font-variant-numeric:tabular-nums}
+.otable td a{text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:9px}
+.otable td a i{width:10px;height:10px;border-radius:3px}
+.otable td a:hover{text-decoration:underline}
+.bar2{display:block;height:6px;border-radius:3px;background:var(--line);min-width:60px}
+.bar2 b{display:block;height:100%;border-radius:3px;background:#8b93a3}
+.otable tfoot td{font-weight:700;border:0}
+.top5{list-style:none;padding:0;margin:0 0 34px;display:grid;gap:4px;max-width:520px}
+.top5 button{all:unset;cursor:pointer;display:flex;justify-content:space-between;gap:12px;padding:8px 10px;border-radius:8px;width:100%;box-sizing:border-box}
+.top5 button:hover{background:var(--card)}
+.top5 button:focus-visible{outline:2px solid var(--focus)}
+.panel{border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px;max-width:640px}
+.panel h2{font-size:1.1rem;margin-bottom:6px}
+.panel p{margin:0 0 12px;color:var(--mute)}
+.panel .row{display:flex;gap:8px;flex-wrap:wrap}
+.panel code{background:var(--card);padding:1px 6px;border-radius:5px}
+label.file{cursor:pointer}
+#toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:100;background:var(--text);color:#15171c;border-radius:10px;padding:10px 14px;display:flex;gap:14px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.5);max-width:calc(100% - 24px)}
+#toast button{background:none;border:0;font-weight:700;text-decoration:underline;color:inherit}
+
+@media(max-width:900px){
+  .tabs{display:none}.dock{display:flex}
+  .bar{gap:12px}
+  .layout{grid-template-columns:1fr}
+  #fopen{display:inline-flex}
+  #filters{position:fixed;inset:auto 0 0 0;top:auto;z-index:60;max-height:86dvh;background:var(--bg2);border-radius:16px 16px 0 0;border:1px solid var(--line);padding:18px 18px calc(18px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .25s}
+  #filters.open{transform:none}
+  #fback.open{display:block;position:fixed;inset:0;z-index:55;background:rgba(5,6,9,.72)}
+  .fhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .fhead .x{float:none;margin:0}
+  .fdone{display:flex;width:100%}
+  .grid{grid-template-columns:repeat(2,1fr);gap:14px 8px}
+  .toolbar{top:calc(56px + env(safe-area-inset-top))}
+}
+@media(max-width:640px){
+  dialog{margin:auto 0 0;width:100%;max-width:none;border-radius:16px 16px 0 0}
+  .detail{grid-template-columns:110px 1fr;gap:14px}
+  .dinfo h2{font-size:1.3rem}
+  #add .tx{display:none}
+  .otable th:nth-child(4),.otable td:nth-child(4){display:none}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap bar">
+  <a class="brand" href="#/collectie" data-nav="collectie"><span class="dots" aria-hidden="true"><b style="background:#2f5bd8"></b><b style="background:#d7263d"></b><b style="background:#1e8a3c"></b><b style="background:#8b93a3"></b></span>Game Collectie</a>
+  <nav class="tabs" aria-label="Hoofdnavigatie">
+    <a href="#/collectie" data-nav="collectie">Collectie</a>
+    <a href="#/overzicht" data-nav="overzicht">Overzicht</a>
+    <a href="#/gegevens" data-nav="gegevens">Gegevens</a>
+  </nav>
+  <button class="primary" id="add"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span class="tx">Toevoegen</span></button>
+</div></header>
+
+<nav class="dock" aria-label="Hoofdnavigatie">
+  <a href="#/collectie" data-nav="collectie"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Collectie</a>
+  <a href="#/overzicht" data-nav="overzicht"><svg class="i" viewBox="0 0 24 24"><path d="M5 20v-6M12 20V5M19 20v-9"/></svg>Overzicht</a>
+  <a href="#/gegevens" data-nav="gegevens"><svg class="i" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>Gegevens</a>
+</nav>
+
+<main class="wrap">
+<section id="p-collectie">
+  <div class="toolbar">
+    <div class="search"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="Zoek op titel, console, ontwikkelaar" autocomplete="off" aria-label="Zoeken"></div>
+    <select id="sort" aria-label="Sorteren">
+      <option value="console">Per console</option><option value="az">Titel A-Z</option><option value="za">Titel Z-A</option>
+      <option value="pup">Prijs oplopend</option><option value="pdown">Prijs aflopend</option>
+      <option value="score">Hoogste beoordeling</option><option value="year">Nieuwste uitgave</option><option value="new">Laatst toegevoegd</option>
+    </select>
+    <button class="ghost" id="fopen"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filters<span id="fbadge"></span></button>
+  </div>
+  <div class="kindbar"><div class="seg" id="kind" role="group" aria-label="Soort"><button data-kind="game">Games</button><button data-kind="hw">Hardware</button><button data-kind="all">Alles</button></div></div>
+  <div class="layout">
+    <aside id="filters" aria-label="Filters">
+      <div class="fhead"><h2>Filters</h2><button class="x" data-fclose aria-label="Sluiten">&times;</button></div>
+      <section><h3>Console</h3><div id="consoleList"></div></section>
+      <section id="typeSec"><h3>Type</h3><div class="type-radios">
+        <label class="chk"><input type="radio" name="ftype" value="all" checked> Alle</label>
+        <label class="chk"><input type="radio" name="ftype" value="phys"> Fysiek</label>
+        <label class="chk"><input type="radio" name="ftype" value="dig"> Digitaal</label></div></section>
+      <section><h3>Prijs (€)</h3><div class="pr"><input id="pmin" type="number" min="0" inputmode="numeric" placeholder="Min" aria-label="Minimumprijs"><input id="pmax" type="number" min="0" inputmode="numeric" placeholder="Max" aria-label="Maximumprijs"></div></section>
+      <section><label class="chk"><input type="checkbox" id="frated"> Enkel beoordeeld</label></section>
+      <button class="primary fdone" data-fclose>Toon resultaten</button>
+    </aside>
+    <div id="fback" data-fclose></div>
+    <div>
+      <div class="rbar"><span id="count"></span><span id="chips" style="display:contents"></span></div>
+      <div id="grid"></div>
+    </div>
+  </div>
+</section>
+
+<section id="p-overzicht" class="page" hidden></section>
+<section id="p-gegevens" class="page" hidden></section>
+</main>
+
+<dialog id="sheet"></dialog>
+<div id="toast" hidden></div>
+
+<script>
+'use strict';
+/* ---------- helpers ---------- */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const key=s=>norm(s).replace(/[^a-z0-9]/g,'');
+const eur=new Intl.NumberFormat('nl-BE',{style:'currency',currency:'EUR'});
+const nl=n=>n.toLocaleString('nl-BE');
+const collator=new Intl.Collator('nl',{numeric:true,sensitivity:'base'});
+const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36);
+const hash=s=>[...s].reduce((h,c)=>(h*31+c.charCodeAt(0))>>>0,7);
+const debounce=(f,ms)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>f(...a),ms)}};
+const dl=(blob,name)=>{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+const stamp=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}`};
+
+/* ---------- opslag (IndexedDB) ---------- */
+const idb=(()=>{let p;const open=()=>p||(p=new Promise((ok,no)=>{const r=indexedDB.open('collectie',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)}));
+  const run=(mode,f)=>open().then(d=>new Promise((ok,no)=>{const t=d.transaction('kv',mode),q=f(t.objectStore('kv'));t.oncomplete=()=>ok(q&&q.result);t.onerror=()=>no(t.error)}));
+  return{get:k=>run('readonly',s=>s.get(k)),set:(k,v)=>run('readwrite',s=>s.put(v,k))}})();
+let items=[];
+const save=debounce(()=>idb.set('items',items).catch(()=>toast('Opslaan mislukt')),150);
+
+/* ---------- consolefamilies + kleuren ---------- */
+const FAMS=['PlayStation','Nintendo','Xbox','PC','Overig'];
+function family(n){n=n.toLowerCase();
+  if(/^(ps|playstation|vita)/.test(n))return'PlayStation';
+  if(/xbox/.test(n))return'Xbox';
+  if(/nintendo|switch|\bds\b|3ds|wii|\bgb|\bnes|snes|cube|n64/.test(n))return'Nintendo';
+  if(/^pc$|steam|epic|gog/.test(n))return'PC';
+  return'Overig'}
+const cmpCon=(a,b)=>FAMS.indexOf(family(a))-FAMS.indexOf(family(b))||collator.compare(a,b);
+function tone(c){const k=c.toLowerCase(),f=family(c);
+  if(f==='PC')return k.includes('steam')?[207,38,26]:k.includes('epic')?[240,5,24]:k.includes('gog')?[290,42,32]:[215,14,32];
+  const h=hash(k)%5,base={PlayStation:222,Nintendo:352,Xbox:134,Overig:42}[f];
+  return[base+h*4-8,58,30+h*3]}
+const swatch=c=>{const[h,s,l]=tone(c);return`hsl(${h} ${s}% ${l+12}%)`};
+function cover(it){
+  if(it.cover)return`<div class="cover img"><img src="${it.cover}" alt="" loading="lazy"></div>`;
+  const[h,s,l]=tone(it.console);
+  return`<div class="cover" style="--c1:hsl(${h} ${s}% ${l}%);--c2:hsl(${h} ${s}% ${l-11}%)"><span class="spine">${esc(it.console)}</span><span class="face"><b>${esc(it.title)}</b></span></div>`}
+const stars=n=>`<span class="st" role="img" aria-label="${n} van 5 sterren"><b>${'★'.repeat(n)}</b>${'★'.repeat(5-n)}</span>`;
+const priceText=it=>it.digital?'Digitaal':eur.format(it.price||0);
+
+/* ---------- spel-databases (db/<console>.json) ---------- */
+const slug=c=>c.toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const wiki=l=>l?(/^https?:/.test(l)?l:'https://en.wikipedia.org/wiki/'+l):'';
+const toRec=r=>({t:r.Game,y:r.Year,d:r.Dev,dl:r.DevLink,p:r.Publisher,pl:r.PublisherLink,pf:r.Platform,pfl:r.PlatformLink,l:r.GameLink,n:key(r.Game||'')});
+const GDB={};
+const ALIAS={cube:'Gamecube','nintendo-gamecube':'Gamecube','wii-u':'WiiU',xbox:'XBOX','xbox-original':'XBOX','xbox-360':'XBOX360',steam:['Steam','Windows'],pc:['Windows','Steam'],'epic-games':['Windows','Steam'],gog:['Windows','Steam']};
+function loadDB(c){const k=slug(c);if(!k)return Promise.resolve(null);
+  return GDB[k]??=(async()=>{const names=[].concat(ALIAS[k]||c.trim().replace(/\s+/g,''));
+    for(const u of[...names.map(n=>`db/${n}Games.json`),`db/${k}.json`]){
+      try{const r=await fetch(u);if(!r.ok)continue;const list=(await r.json()).map(toRec).filter(x=>x.t),map=new Map();
+        list.forEach(x=>map.has(x.n)||map.set(x.n,x));return{list,map}}catch{}}return null})()}
+const metaOf=r=>{const m={v:2};for(const k of['y','d','dl','p','pl','pf','pfl','l'])if(r[k])m[k]=String(r[k]);if(m.pf)m.pf=m.pf.replace(/^the\s+/i,'');return Object.keys(m).length>1?m:null};
+async function enrich(){let n=0;
+  for(const c of new Set(items.filter(i=>i.kind==='game'&&(!i.meta||i.meta.v!==2)).map(i=>i.console))){
+    const db=await loadDB(c);if(!db)continue;
+    for(const i of items)if(i.kind==='game'&&i.console===c&&(!i.meta||i.meta.v!==2)){const r=db.map.get(key(i.title));if(r){i.meta=metaOf(r);n++}}}
+  if(n){save();render()}return n}
+
+/* ---------- Excel ---------- */
+let xl;const loadXLSX=()=>xl||(xl=new Promise((ok,no)=>{if(window.XLSX)return ok();const s=document.createElement('script');s.src='xlsx.js';s.onload=ok;s.onerror=()=>{xl=null;no(new Error('xlsx.js niet gevonden'))};document.head.append(s)}));
+function fromWorkbook(wb){const out=[],t0=Date.now();
+  for(const name of wb.SheetNames){const hw=/hardware|consoles/i.test(name);
+    for(const r of XLSX.utils.sheet_to_json(wb.Sheets[name],{defval:''})){
+      const c=String((hw?r.Hardware:r.Console)??'').trim(),t=String((hw?r.Hardware_Titel:r.Game_Titel)??'').trim();if(!c||!t)continue;
+      const m={y:String(r.Jaar||''),pf:String(r.Platform||''),d:String(r.Ontwikkelaar||''),p:String(r.Uitgever||''),l:String(r.Link||'')};Object.keys(m).forEach(k=>m[k]||delete m[k]);
+      out.push({id:uid(),kind:hw?'hw':'game',console:c,title:t,price:Number(r.Prijs)||0,digital:!hw&&String(r.Digital).trim().toLowerCase()==='x',
+        extra:String(r.Extra||'').trim(),rating:Math.min(5,Number(r.Beoordeling)||0),review:String(r.Review||''),meta:Object.keys(m).length?m:null,added:t0+out.length})}}
+  return out}
+const mergeKey=i=>`${i.kind}|${key(i.console)}|${key(i.title)}`;
+function adopt(next){const old=new Map(items.map(i=>[mergeKey(i),i]));
+  next.forEach(n=>{const o=old.get(mergeKey(n));if(o){n.cover=o.cover;n.rating=n.rating||o.rating;n.review=n.review||o.review;n.meta=n.meta||o.meta}});
+  items=next;save();render();enrich()}
+async function exportXLSX(){await loadXLSX();
+  const g=items.filter(i=>i.kind==='game').map(i=>({Console:i.console,Game_Titel:i.title,Prijs:i.price,Digital:i.digital?'x':'',Extra:i.extra,Beoordeling:i.rating||'',Review:i.review,Jaar:i.meta?.y||'',Platform:i.meta?.pf||'',Ontwikkelaar:i.meta?.d||'',Uitgever:i.meta?.p||'',Link:i.meta?.l||''}));
+  const h=items.filter(i=>i.kind==='hw').map(i=>({Hardware:i.console,Hardware_Titel:i.title,Prijs:i.price,Extra:i.extra,Beoordeling:i.rating||'',Review:i.review}));
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(g),'Games');if(h.length)XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(h),'Hardware');
+  dl(new Blob([XLSX.write(wb,{bookType:'xlsx',type:'array'})]),`Database_${stamp()}.xlsx`)}
+
+/* ---------- filters / zoeken / sorteren ---------- */
+const F={q:'',kind:'game',consoles:new Set(),type:'all',min:'',max:'',rated:false,sort:'console'};
+function matches(it,skip){
+  if(F.kind!=='all'&&it.kind!==F.kind)return false;
+  if(skip!=='consoles'&&F.consoles.size&&!F.consoles.has(it.console))return false;
+  if(F.type==='dig'&&!it.digital)return false;
+  if(F.type==='phys'&&it.digital)return false;
+  if(F.min!==''||F.max!==''){if(it.digital)return false;if(F.min!==''&&it.price<+F.min)return false;if(F.max!==''&&it.price>+F.max)return false}
+  if(F.rated&&!it.rating)return false;
+  if(F.q){const hay=norm(`${it.title} ${it.console} ${it.extra} ${it.meta?.d||''} ${it.meta?.p||''} ${it.meta?.y||''}`);
+    if(!norm(F.q).split(/\s+/).filter(Boolean).every(t=>hay.includes(t)))return false}
+  return true}
+const pv=i=>i.digital?Infinity:i.price;
+const byTitle=(a,b)=>collator.compare(a.title,b.title);
+const SORTS={
+  console:(a,b)=>cmpCon(a.console,b.console)||byTitle(a,b),az:byTitle,za:(a,b)=>byTitle(b,a),
+  pup:(a,b)=>(pv(a)===pv(b)?0:pv(a)-pv(b))||byTitle(a,b),
+  pdown:(a,b)=>(a.digital-b.digital)||(b.price-a.price)||byTitle(a,b),
+  score:(a,b)=>b.rating-a.rating||byTitle(a,b),
+  year:(a,b)=>(+b.meta?.y||0)-(+a.meta?.y||0)||byTitle(a,b),
+  new:(a,b)=>b.added-a.added};
+const card=it=>`<button class="card${it.cover?' hasimg':''}" data-id="${it.id}">${cover(it)}${it.digital?'<span class="tag">Digitaal</span>':''}
+  <span class="m"><span class="t">${esc(it.title)}</span><span class="m1"><span>${esc(it.console)}</span><span class="price">${it.digital?'':eur.format(it.price||0)}</span></span>${it.rating?stars(it.rating):''}</span></button>`;
+function renderConsoleList(){
+  const cnt={};items.filter(i=>matches(i,'consoles')).forEach(i=>cnt[i.console]=(cnt[i.console]||0)+1);
+  F.consoles.forEach(c=>cnt[c]??=0);
+  let html='',last='';
+  for(const n of Object.keys(cnt).sort(cmpCon)){const f=family(n);if(f!==last){html+=`<h4>${f}</h4>`;last=f}
+    html+=`<label class="opt"><input type="checkbox" value="${esc(n)}"${F.consoles.has(n)?' checked':''}><i style="background:${swatch(n)}"></i><span>${esc(n)}</span><small>${cnt[n]}</small></label>`}
+  $('#consoleList').innerHTML=html||'<p class="mute">Geen consoles</p>'}
+function renderChips(){
+  const c=[...[...F.consoles].map(x=>[`c:${x}`,x])];
+  if(F.type!=='all')c.push(['type',F.type==='dig'?'Digitaal':'Fysiek']);
+  if(F.min!==''||F.max!=='')c.push(['price',`€${F.min||0} tot ${F.max===''?'∞':'€'+F.max}`]);
+  if(F.rated)c.push(['rated','Beoordeeld']);
+  if(F.q)c.push(['q',`"${F.q}"`]);
+  $('#chips').innerHTML=c.map(([k,l])=>`<button class="chip" data-chip="${esc(k)}">${esc(l)} &times;</button>`).join('')+(c.length>1?'<button class="chip" data-chip="all">Alles wissen</button>':'');
+  const n=c.length-(F.q?1:0);$('#fbadge').textContent=n?` (${n})`:''}
+function renderCatalog(){
+  renderConsoleList();renderChips();
+  $('#typeSec').hidden=F.kind==='hw';
+  $$('#kind button').forEach(b=>b.classList.toggle('on',b.dataset.kind===F.kind));
+  const list=items.filter(i=>matches(i)).sort(SORTS[F.sort]);
+  $('#count').textContent=`${nl(list.length)} ${list.length===1?'item':'items'}`;
+  const g=$('#grid');
+  if(!items.length){g.innerHTML=`<div class="empty"><h2>Nog geen collectie</h2><p>Importeer je Excel-bestand of voeg het eerste item toe.</p><a class="primary" href="#/gegevens">Naar gegevens</a><button class="ghost" data-add>Item toevoegen</button></div>`;return}
+  if(!list.length){g.innerHTML=`<div class="empty"><h2>Niets gevonden</h2><p>Pas je zoekopdracht of filters aan.</p><button class="ghost" data-chip="all">Filters wissen</button></div>`;return}
+  if(F.sort==='console'){const by=new Map();list.forEach(i=>(by.get(i.console)||by.set(i.console,[]).get(i.console)).push(i));
+    g.innerHTML=[...by].map(([c,a])=>`<section class="grp"><h2><i style="background:${swatch(c)}"></i>${esc(c)}<small>${a.length}</small></h2><div class="grid">${a.map(card).join('')}</div></section>`).join('')}
+  else g.innerHTML=`<div class="grid">${list.map(card).join('')}</div>`}
+function syncInputs(){$('#q').value=F.q;$('#sort').value=F.sort;$('#pmin').value=F.min;$('#pmax').value=F.max;$('#frated').checked=F.rated;
+  $$('input[name=ftype]').forEach(r=>r.checked=r.value===F.type)}
+function resetFilters(){Object.assign(F,{q:'',type:'all',min:'',max:'',rated:false});F.consoles.clear();syncInputs();renderCatalog()}
+const toggleFilters=o=>{$('#filters').classList.toggle('open',o);$('#fback').classList.toggle('open',o)};
+
+/* ---------- detail / bewerken (sheet) ---------- */
+const sheet=$('#sheet');let cur=null;
+const find=id=>items.find(i=>i.id===id);
+function openSheet(html){sheet.innerHTML=`<div class="sh">${html}</div>`;if(!sheet.open)sheet.showModal()}
+function detail(id){cur=find(id);if(!cur)return;const it=cur,m=it.meta;
+  const lk=(t,u)=>u?`<a href="${esc(wiki(u))}" target="_blank" rel="noopener">${esc(t)}</a>`:esc(t);
+  const rows=m?[['Jaar',m.y&&esc(m.y)],['Platform',m.pf&&lk(m.pf,m.pfl)],['Ontwikkelaar',m.d&&lk(m.d,m.dl)],['Uitgever',m.p&&lk(m.p,m.pl)],['Meer info',m.l&&lk('Wikipedia',m.l)]].filter(r=>r[1]).map(([a,b])=>`<dt>${a}</dt><dd>${b}</dd>`).join(''):'';
+  openSheet(`<button class="x" data-close aria-label="Sluiten">&times;</button>
+  <div class="detail"><div>${cover(it)}</div><div class="dinfo"><h2>${esc(it.title)}</h2>
+    <div class="tags"><span>${esc(it.console)}</span><span>${it.kind==='hw'?'Hardware':it.digital?'Digitaal':'Fysiek'}</span></div>
+    <p class="big">${it.digital?'':eur.format(it.price||0)}</p>
+    ${it.extra?`<p class="note">${esc(it.extra)}</p>`:''}
+    ${rows?`<dl class="meta">${rows}</dl>`:''}
+  </div></div>
+  <div class="rev" style="margin-top:18px"><h3>Jouw beoordeling</h3>
+    <div class="stars" role="group" aria-label="Beoordeling">${[1,2,3,4,5].map(n=>`<button data-star="${n}" aria-label="${n} ${n===1?'ster':'sterren'}" class="${n<=it.rating?'on':''}">★</button>`).join('')}</div>
+    <textarea id="rev" placeholder="Wat vond je ervan?" aria-label="Review">${esc(it.review)}</textarea><div class="saved" id="saved"></div></div>
+  <div class="actions"><button class="ghost" data-edit>Bewerken</button><button class="danger" data-del>Verwijderen</button></div>`)}
+const flash=t=>{const s=$('#saved');if(s){s.textContent=t;clearTimeout(flash.t);flash.t=setTimeout(()=>s.textContent='',1800)}};
+function rate(n){cur.rating=cur.rating===n?0:n;$$('[data-star]',sheet).forEach(b=>b.classList.toggle('on',+b.dataset.star<=cur.rating));save();renderCatalog();flash('Opgeslagen')}
+const saveReview=()=>{const v=$('#rev')?.value;if(cur&&v!==undefined&&v!==cur.review){cur.review=v;save();flash('Opgeslagen')}};
+
+async function shrink(file){return new Promise((ok,no)=>{const img=new Image(),u=URL.createObjectURL(file);
+  img.onload=()=>{const r=Math.min(1,360/img.width),c=document.createElement('canvas');c.width=img.width*r;c.height=img.height*r;c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);ok(c.toDataURL('image/jpeg',.82))};
+  img.onerror=no;img.src=u})}
+function form(id){const it=id?find(id):null;cur=it;
+  const d=it||{kind:F.kind==='hw'?'hw':'game',console:F.consoles.size===1?[...F.consoles][0]:'',title:'',price:'',digital:false,extra:'',cover:'',meta:null};
+  const cons=[...new Set(items.map(i=>i.console))].sort(cmpCon);
+  openSheet(`<button class="x" data-close aria-label="Sluiten">&times;</button><h2 style="margin-bottom:16px">${it?'Item bewerken':'Nieuw item'}</h2>
+  <form id="f" data-kind="${d.kind}" autocomplete="off">
+    <div class="seg" style="margin-bottom:16px">${[['game','Game'],['hw','Hardware']].map(([v,l])=>`<label class="${d.kind===v?'on':''}"><input type="radio" name="kind" value="${v}" hidden${d.kind===v?' checked':''}>${l}</label>`).join('')}</div>
+    <label class="f"><span>Console of categorie</span><input name="console" list="cl" required value="${esc(d.console)}"><datalist id="cl">${cons.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></label>
+    <div class="f"><span>Titel</span><div class="ac"><input name="title" required value="${esc(d.title)}" role="combobox" aria-expanded="false" aria-controls="acl"><ul id="acl" role="listbox" hidden></ul></div><div class="hint" id="hint"></div></div>
+    <div class="two"><label class="f" style="margin:0"><span>Prijs (€)</span><input name="price" type="number" step="0.01" min="0" inputmode="decimal" value="${d.price===''?'':d.price}"></label>
+      <label class="chk dig"><input type="checkbox" name="digital"${d.digital?' checked':''}> Digitaal</label></div>
+    <label class="f" style="margin-top:14px"><span>Extra info</span><textarea name="extra" rows="2" placeholder="Bijv. enkel disc, geen boekje">${esc(d.extra)}</textarea></label>
+    <div class="f"><span>Cover (optioneel)</span><div class="cf"><div id="cprev" style="width:70px">${cover({...d,title:d.title||'Titel',console:d.console||'?'})}</div>
+      <div><label class="ghost file"><input type="file" id="cfile" accept="image/*" hidden>Afbeelding kiezen</label><button type="button" class="ghost" id="cdel"${d.cover?'':' hidden'}>Cover verwijderen</button></div></div></div>
+    <div class="actions"><button class="primary" type="submit">Opslaan</button><button class="ghost" type="button" data-cancel>Annuleren</button>${it?'<button class="danger" type="button" data-del>Verwijderen</button>':''}</div>
+  </form>`);
+  bindForm($('#f'),d)}
+function bindForm(f,d){
+  const E=f.elements,ul=$('#acl'),hint=$('#hint');let db=null,res=[],act=-1,meta=d.meta||null,mkey=meta?key(d.title):null,img=d.cover||'';
+  const showHint=()=>{const h=[];if(db)h.push(`<span>${nl(db.list.length)} titels beschikbaar voor ${esc(E.console.value.trim())}</span>`);
+    if(meta)h.push(...[meta.y,meta.pf,meta.d,meta.p].filter(Boolean).map(x=>`<span class="chip">${esc(x)}</span>`));hint.innerHTML=h.join('')};
+  const close=()=>{ul.hidden=true;E.title.setAttribute('aria-expanded','false');act=-1};
+  const list=()=>{const q=key(E.title.value);if(!db||q.length<2)return close();
+    const a=[],b=[];for(const r of db.list){const i=r.n.indexOf(q);if(i===0)a.push(r);else if(i>0)b.push(r);if(a.length>=8)break}
+    res=[...a,...b].slice(0,8);if(!res.length)return close();
+    ul.innerHTML=res.map((r,i)=>`<li role="option" data-i="${i}"><span>${esc(r.t)}</span><small>${esc([r.y,r.d].filter(Boolean).join(', '))}</small></li>`).join('');
+    ul.hidden=false;E.title.setAttribute('aria-expanded','true');act=-1};
+  const pick=i=>{const r=res[i];if(!r)return;E.title.value=r.t;meta=metaOf(r);mkey=key(r.t);close();showHint()};
+  const loadCon=async()=>{db=null;showHint();const c=E.console.value.trim();if(!c||f.dataset.kind==='hw')return;db=await loadDB(c);showHint();if(document.activeElement===E.title)list()};
+  E.title.addEventListener('input',()=>{if(key(E.title.value)!==mkey){meta=null;mkey=null}showHint();list()});
+  E.title.addEventListener('keydown',e=>{if(ul.hidden)return;const lis=$$('li',ul);
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();act=(act+(e.key==='ArrowDown'?1:-1)+lis.length)%lis.length;lis.forEach((l,i)=>l.classList.toggle('on',i===act));lis[act].scrollIntoView({block:'nearest'})}
+    else if(e.key==='Enter'&&act>=0){e.preventDefault();pick(act)}else if(e.key==='Escape'){e.stopPropagation();close()}});
+  E.title.addEventListener('blur',()=>setTimeout(close,150));
+  ul.addEventListener('pointerdown',e=>{const li=e.target.closest('li');if(li){e.preventDefault();pick(+li.dataset.i)}});
+  E.console.addEventListener('input',debounce(loadCon,250));
+  $$('input[name=kind]',f).forEach(r=>r.addEventListener('change',()=>{f.dataset.kind=r.value;$$('.seg label',f).forEach(l=>l.classList.toggle('on',l.contains(r)&&r.checked));loadCon()}));
+  const prev=()=>{$('#cprev').innerHTML=cover({cover:img,title:E.title.value||'Titel',console:E.console.value||'?'});$('#cdel').hidden=!img};
+  $('#cfile').addEventListener('change',async e=>{const fl=e.target.files[0];if(!fl)return;try{img=await shrink(fl);prev()}catch{toast('Afbeelding niet leesbaar')}});
+  $('#cdel').addEventListener('click',()=>{img='';prev()});
+  f.addEventListener('submit',async e=>{e.preventDefault();
+    const c=E.console.value.trim(),t=E.title.value.trim();if(!c||!t)return;
+    const hw=f.dataset.kind==='hw',o=cur||{id:uid(),rating:0,review:'',added:Date.now()};
+    if(!meta&&!hw){const x=(await loadDB(c))?.map.get(key(t));if(x)meta=metaOf(x)}
+    Object.assign(o,{kind:hw?'hw':'game',console:c,title:t,price:Math.max(0,parseFloat(E.price.value)||0),digital:!hw&&E.digital.checked,extra:E.extra.value.trim(),cover:img||undefined,meta:hw?null:meta});
+    if(!cur)items.push(o);cur=null;save();close_();render();toast('Opgeslagen')});
+  loadCon()}
+const close_=()=>{if(sheet.open)sheet.close()};
+function remove(id){const i=items.findIndex(x=>x.id===id);if(i<0)return;const [it]=items.splice(i,1);save();close_();render();toast(`"${it.title}" verwijderd`,()=>{items.splice(i,0,it);save();render()})}
+let toastT;
+function toast(msg,undo){const t=$('#toast');t.innerHTML=`<span>${esc(msg)}</span>${undo?'<button>Ongedaan maken</button>':''}`;t.hidden=false;
+  if(undo)$('button',t).onclick=()=>{undo();t.hidden=true};clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,undo?6000:2200)}
+
+/* ---------- overzicht ---------- */
+function renderOverview(){
+  const val=a=>a.reduce((s,i)=>s+(i.digital?0:i.price),0),G=items.filter(i=>i.kind==='game'),H=items.filter(i=>i.kind==='hw');
+  const table=(cap,list,kind)=>{if(!list.length)return'';const by={};list.forEach(i=>(by[i.console]??=[]).push(i));
+    const names=Object.keys(by).sort(cmpCon),max=Math.max(...names.map(n=>by[n].length));
+    return`<table class="otable"><caption>${cap}</caption><thead><tr><th>Systeem</th><th class="n">Aantal</th><th class="n">Waarde</th><th>Verdeling</th><th class="n">Gem. score</th></tr></thead><tbody>${names.map(n=>{const a=by[n],r=a.filter(i=>i.rating);
+      return`<tr><td><a href="#/collectie" data-c="${esc(n)}" data-k="${kind}"><i style="background:${swatch(n)}"></i>${esc(n)}</a></td><td class="n">${a.length}</td><td class="n">${eur.format(val(a))}</td><td><span class="bar2"><b style="width:${a.length/max*100}%"></b></span></td><td class="n">${r.length?(r.reduce((s,i)=>s+i.rating,0)/r.length).toFixed(1):'-'}</td></tr>`}).join('')}</tbody><tfoot><tr><td>Totaal</td><td class="n">${list.length}</td><td class="n">${eur.format(val(list))}</td><td></td><td></td></tr></tfoot></table>`};
+  const top=items.filter(i=>i.rating>=4).sort((a,b)=>b.rating-a.rating||byTitle(a,b)).slice(0,6),dig=G.filter(i=>i.digital).length;
+  $('#p-overzicht').innerHTML=items.length?`<h1>${nl(G.length)} games en ${nl(H.length)} hardware-items, samen ${eur.format(val(items))} waard</h1>
+    <p class="mute">${nl(dig)} games zijn digitaal en tellen niet mee in de waarde. ${items.filter(i=>i.rating).length} van de ${nl(items.length)} items hebben een beoordeling.</p>
+    ${table('Games',G,'game')}${table('Hardware',H,'hw')}
+    ${top.length?`<h2 style="margin-bottom:10px">Best beoordeeld</h2><ul class="top5">${top.map(i=>`<li><button data-id="${i.id}"><span>${esc(i.title)} <span class="mute">${esc(i.console)}</span></span>${stars(i.rating)}</button></li>`).join('')}</ul>`:''}`
+    :`<h1>Nog niets om te tonen</h1><p class="mute">Voeg items toe of importeer je Excel-bestand bij Gegevens.</p>`}
+
+/* ---------- gegevens ---------- */
+let installEvt;addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;if(!$('#p-gegevens').hidden)renderData()});
+function renderData(){
+  $('#p-gegevens').innerHTML=`<h1>Gegevens</h1><p class="mute">Alles staat lokaal op dit toestel en werkt offline.</p>
+  <div class="panel"><h2>Excel</h2><p>Importeren vervangt de lijst; covers en reviews van bestaande items blijven behouden. Kolommen: <code>Console, Game_Titel, Prijs, Digital, Extra</code> en op blad Hardware <code>Hardware, Hardware_Titel, Prijs, Extra</code>.</p>
+    <div class="row"><label class="ghost file">Excel importeren<input type="file" id="imp" accept=".xlsx,.xls" hidden></label><button class="primary" id="exp">Excel exporteren</button></div></div>
+  <div class="panel"><h2>Back-up</h2><p>Volledige back-up inclusief covers (JSON).</p>
+    <div class="row"><button class="ghost" id="bk">Back-up maken</button><label class="ghost file">Back-up terugzetten<input type="file" id="rs" accept=".json" hidden></label></div></div>
+  <div class="panel"><h2>Titeldatabases</h2><p>Games worden aangevuld met alle info uit <code>db/&lt;Console&gt;Games.json</code> (bijv. <code>db/PS4Games.json</code>), zoals jaar, platform, ontwikkelaar en uitgever.</p>
+    <div class="row"><button class="ghost" id="en">Nu aanvullen</button></div></div>
+  <div class="panel"><h2>App</h2><p>${installEvt?'Installeer deze collectie op je beginscherm.':navigator.serviceWorker?.controller?'Offline beschikbaar. Installeren kan via het browsermenu.':'Offline modus wordt ingesteld na het eerste bezoek via http(s).'}</p>
+    <div class="row">${installEvt?'<button class="primary" id="inst">Installeren</button>':''}<button class="danger" id="wipe">Alle gegevens wissen</button></div></div>`}
+
+/* ---------- router + events ---------- */
+const PAGES=['collectie','overzicht','gegevens'];
+function render(){const p=curPage();if(p==='collectie')renderCatalog();else if(p==='overzicht')renderOverview()}
+const curPage=()=>PAGES.includes(location.hash.slice(2))?location.hash.slice(2):'collectie';
+function route(){const p=curPage();PAGES.forEach(x=>$('#p-'+x).hidden=x!==p);
+  $$('[data-nav]').forEach(a=>a.setAttribute('aria-current',a.dataset.nav===p?'page':'false'));
+  if(p==='gegevens')renderData();else render();scrollTo(0,0)}
+addEventListener('hashchange',route);
+
+document.addEventListener('click',async e=>{const t=e.target,c=s=>t.closest(s);let x;
+  if(x=c('[data-nav]')){if(x.dataset.nav===curPage())scrollTo({top:0,behavior:'smooth'});return}
+  if(c('#add')||c('[data-add]')){form();return}
+  if(x=c('.card,.top5 button')){detail(x.dataset.id);return}
+  if(x=c('a[data-c]')){F.kind=x.dataset.k;F.consoles=new Set([x.dataset.c]);F.q='';return}
+  if(x=c('[data-chip]')){const k=x.dataset.chip;
+    if(k==='all')resetFilters();else{if(k.startsWith('c:'))F.consoles.delete(k.slice(2));else if(k==='type')F.type='all';else if(k==='price')F.min=F.max='';else if(k==='rated')F.rated=false;else if(k==='q')F.q='';syncInputs();renderCatalog()}return}
+  if(x=c('#kind button')){F.kind=x.dataset.kind;F.consoles.clear();renderCatalog();return}
+  if(c('#fopen')){toggleFilters(true);return}
+  if(c('[data-fclose]')){toggleFilters(false);return}
+  if(c('[data-close]')||c('[data-cancel]')){saveReview();close_();return}
+  if(x=c('[data-star]')){rate(+x.dataset.star);return}
+  if(c('[data-edit]')){saveReview();form(cur.id);return}
+  if(x=c('[data-del]')){if(!x.dataset.armed){x.dataset.armed=1;x.textContent='Zeker weten?';setTimeout(()=>{delete x.dataset.armed;x.textContent='Verwijderen'},3000);return}remove(cur.id);return}
+  if(c('#exp')){try{await exportXLSX()}catch(err){toast(err.message)}return}
+  if(c('#bk')){dl(new Blob([JSON.stringify(items)],{type:'application/json'}),`Backup_${stamp()}.json`);return}
+  if(c('#en')){toast('Bezig…');const n=await enrich();toast(n?`${n} games aangevuld`:'Niets nieuws gevonden');return}
+  if(c('#inst')){installEvt.prompt();installEvt=null;renderData();return}
+  if(c('#wipe')){if(confirm('Alle items en reviews van dit toestel wissen?')){items=[];await idb.set('items',[]);toast('Gewist');render()}return}
+});
+sheet.addEventListener('click',e=>{if(e.target===sheet){saveReview();close_()}});
+sheet.addEventListener('close',()=>{saveReview();cur=null});
+sheet.addEventListener('focusout',e=>{if(e.target.id==='rev')saveReview()});
+document.addEventListener('change',async e=>{const t=e.target,f=t.files?.[0];
+  if(t.matches('#consoleList input')){t.checked?F.consoles.add(t.value):F.consoles.delete(t.value);renderCatalog()}
+  else if(t.name==='ftype'){F.type=t.value;renderCatalog()}
+  else if(t.id==='frated'){F.rated=t.checked;renderCatalog()}
+  else if(t.id==='sort'){F.sort=t.value;renderCatalog()}
+  else if(t.id==='imp'&&f){try{await loadXLSX();const next=fromWorkbook(XLSX.read(await f.arrayBuffer(),{type:'array'}));
+    if(!next.length)return toast('Geen geldige rijen gevonden');
+    if(confirm(`Huidige collectie (${items.length}) vervangen door ${next.length} items uit dit bestand?`)){adopt(next);toast(`${next.length} items geïmporteerd`)}}catch(err){toast(err.message)}t.value=''}
+  else if(t.id==='rs'&&f){try{const j=JSON.parse(await f.text());if(!Array.isArray(j))throw 0;if(confirm(`Back-up met ${j.length} items terugzetten?`)){items=j;save();render();toast('Teruggezet')}}catch{toast('Ongeldige back-up')}t.value=''}});
+$('#q').addEventListener('input',debounce(e=>{F.q=e.target.value.trim();renderCatalog()},120));
+['pmin','pmax'].forEach(id=>$('#'+id).addEventListener('input',debounce(()=>{F.min=$('#pmin').value;F.max=$('#pmax').value;renderCatalog()},200)));
+addEventListener('keydown',e=>{if(e.key==='Escape')toggleFilters(false)});
+
+/* ---------- start ---------- */
+(async()=>{
+  try{items=(await idb.get('items'))||null}catch{items=null}
+  if(!items){items=[];try{const r=await fetch('database.xlsx');if(r.ok){await loadXLSX();items=fromWorkbook(XLSX.read(await r.arrayBuffer(),{type:'array'}));save()}}catch{}}
+  navigator.storage?.persist?.();
+  syncInputs();route();enrich();
+  if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+})();
+</script>
+</body>
+</html>
