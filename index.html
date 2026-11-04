@@ -183,6 +183,13 @@ form[data-kind=hw] .dig{display:none}
 .panel .row{display:flex;gap:8px;flex-wrap:wrap}
 .panel code{background:var(--card);padding:1px 6px;border-radius:5px}
 label.file{cursor:pointer}
+.clist{list-style:none;margin:0;padding:0;max-width:900px}
+.crow{display:flex;gap:16px;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.cn{display:flex;flex-direction:column;min-width:0;flex:0 1 38%}
+.cn small{color:var(--mute)}
+.cs{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;align-items:center;flex:1}
+.cs .chip{text-align:left}
+@media(max-width:640px){.crow{flex-direction:column;align-items:stretch;gap:8px}.cs{justify-content:flex-start}}
 #toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:100;background:var(--text);color:#15171c;border-radius:10px;padding:10px 14px;display:flex;gap:14px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.5);max-width:calc(100% - 24px)}
 #toast button{background:none;border:0;font-weight:700;text-decoration:underline;color:inherit}
 
@@ -261,6 +268,7 @@ label.file{cursor:pointer}
 
 <section id="p-overzicht" class="page" hidden></section>
 <section id="p-gegevens" class="page" hidden></section>
+<section id="p-controle" class="page" hidden></section>
 </main>
 
 <dialog id="sheet"></dialog>
@@ -314,25 +322,36 @@ const priceText=it=>it.digital?'Digitaal':eur.format(it.price||0);
 /* ---------- spel-databases (db/<console>.json) ---------- */
 const slug=c=>c.toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const wiki=l=>l?(/^https?:/.test(l)?l:'https://en.wikipedia.org/wiki/'+l):'';
-const toRec=r=>({t:r.Game,y:r.Year,d:r.Dev,dl:r.DevLink,p:r.Publisher,pl:r.PublisherLink,pf:r.Platform,pfl:r.PlatformLink,l:r.GameLink,n:key(r.Game||'')});
+const REG=/(?:(?:JP|KO|NA|PAL|EU|AU|UK|CH|BR|AS|Asia|UNK|WW|SA|FR|DE|RU|TW|HK)(?:,\s*)?)+$/;
+function toRecs(r){
+  const parts=String(r.Game||'').split(/\s*(?:-\s*)?\u2022\s*/).map(x=>x.trim()).filter(Boolean);if(!parts.length)return[];
+  const vars=parts.map((p,i)=>{const m=i?p.match(REG):null;return m&&m.index>1?{t:p.slice(0,m.index).replace(/[-\u2013\s]+$/,''),rg:m[0].replace(/,$/,'')}:{t:p,rg:''}});
+  return vars.map((v,i)=>({t:v.t,rg:v.rg,alts:vars.filter((_,j)=>j!==i).map(o=>o.rg?`${o.t} (${o.rg})`:o.t),
+    y:r.Year,d:r.Dev,dl:r.DevLink,p:r.Publisher,pl:r.PublisherLink,pf:r.Platform,pfl:r.PlatformLink,l:r.GameLink,n:key(v.t)}))}
+const words=s=>norm(s).replace(/&/g,' and ').split(/[^a-z0-9]+/).filter(w=>w&&w!=='the').map(w=>String(ROM[w]||w));
+function suggest(db,title){const A=new Set(words(title)),k=key(title);if(!A.size)return[];const out=[];
+  for(const r of db.list){const B=r.w||(r.w=new Set(words(r.t)));let i=0;for(const w of A)if(B.has(w))i++;if(!i)continue;
+    let sc=i/(A.size+B.size-i);if(r.n.startsWith(k)||k.startsWith(r.n))sc+=.3;if(sc>=.4)out.push([sc,r])}
+  return out.sort((a,b)=>b[0]-a[0]).slice(0,4).map(x=>x[1])}
 const GDB={};
 const ALIAS={cube:'Gamecube','nintendo-gamecube':'Gamecube','wii-u':'WiiU',xbox:'XBOX','xbox-original':'XBOX','xbox-360':'XBOX360',steam:['Steam','Windows'],pc:['Windows','Steam'],'epic-games':['Windows','Steam'],gog:['Windows','Steam']};
 function loadDB(c){const k=slug(c);if(!k)return Promise.resolve(null);
   return GDB[k]??=(async()=>{const names=[].concat(ALIAS[k]||c.trim().replace(/\s+/g,''));
-    const mk=a=>{const list=a.map(toRec).filter(x=>x.t),map=new Map();list.forEach(x=>map.has(x.n)||map.set(x.n,x));return{list,map}};
+    const mk=a=>{const list=a.flatMap(toRecs).filter(x=>x.t),map=new Map();list.forEach(x=>map.has(x.n)||map.set(x.n,x));return{list,map,count:a.length}};
     for(const n of names){try{const a=await idb.get('db:'+n.toLowerCase());if(Array.isArray(a))return mk(a)}catch{}}
     for(const u of[...names.map(n=>`db/${n}Games.json`),`db/${k}.json`]){
       try{const r=await fetch(u);if(!r.ok)continue;const a=await r.json();if(Array.isArray(a))return mk(a)}catch{}}
     return null})()}
-const metaOf=r=>{const m={v:2};for(const k of['y','d','dl','p','pl','pf','pfl','l'])if(r[k])m[k]=String(r[k]);if(m.pf)m.pf=m.pf.replace(/^the\s+/i,'');return Object.keys(m).length>1?m:null};
+const metaOf=r=>{const m={v:3};for(const k of['y','d','dl','p','pl','pf','pfl','l'])if(r[k])m[k]=String(r[k]);if(m.pf)m.pf=m.pf.replace(/^the\s+/i,'');
+  if(r.rg)m.r=r.rg;if(r.alts?.length)m.alt=r.alts.join('; ');return Object.keys(m).length>1?m:null};
 async function importDBs(files){let n=0;
   for(const f of files){const m=f.name.match(/^(.*?)Games\.json$/i);if(!m)continue;
     try{const a=JSON.parse(await f.text());if(Array.isArray(a)){await idb.set('db:'+m[1].toLowerCase(),a);n++}}catch{}}
   Object.keys(GDB).forEach(k=>delete GDB[k]);const e=await enrich();toast(`${n} databases geladen, ${e} games aangevuld`);renderData()}
 async function enrich(){let n=0;
-  for(const c of new Set(items.filter(i=>i.kind==='game'&&(!i.meta||i.meta.v!==2)).map(i=>i.console))){
+  for(const c of new Set(items.filter(i=>i.kind==='game'&&(!i.meta||i.meta.v!==3)).map(i=>i.console))){
     const db=await loadDB(c);if(!db)continue;
-    for(const i of items)if(i.kind==='game'&&i.console===c&&(!i.meta||i.meta.v!==2)){const r=db.map.get(key(i.title));if(r){i.meta=metaOf(r);n++}}}
+    for(const i of items)if(i.kind==='game'&&i.console===c&&(!i.meta||i.meta.v!==3)){const r=db.map.get(key(i.title));if(r){i.meta=metaOf(r);n++}}}
   if(n){save();render()}return n}
 
 /* ---------- Excel ---------- */
@@ -364,7 +383,7 @@ function matches(it,skip){
   if(F.type==='phys'&&it.digital)return false;
   if(F.min!==''||F.max!==''){if(it.digital)return false;if(F.min!==''&&it.price<+F.min)return false;if(F.max!==''&&it.price>+F.max)return false}
   if(F.rated&&!it.rating)return false;
-  if(F.q){const hay=norm(`${it.title} ${it.console} ${it.extra} ${it.meta?.d||''} ${it.meta?.p||''} ${it.meta?.y||''}`);
+  if(F.q){const hay=norm(`${it.title} ${it.console} ${it.extra} ${it.meta?.d||''} ${it.meta?.p||''} ${it.meta?.y||''} ${it.meta?.alt||''}`);
     if(!norm(F.q).split(/\s+/).filter(Boolean).every(t=>hay.includes(t)))return false}
   return true}
 const pv=i=>i.digital?Infinity:i.price;
@@ -416,7 +435,7 @@ const find=id=>items.find(i=>i.id===id);
 function openSheet(html){sheet.innerHTML=`<div class="sh">${html}</div>`;if(!sheet.open)sheet.showModal()}
 function detail(id){cur=find(id);if(!cur)return;const it=cur,m=it.meta;
   const lk=(t,u)=>u?`<a href="${esc(wiki(u))}" target="_blank" rel="noopener">${esc(t)}</a>`:esc(t);
-  const rows=m?[['Jaar',m.y&&esc(m.y)],['Platform',m.pf&&lk(m.pf,m.pfl)],['Ontwikkelaar',m.d&&lk(m.d,m.dl)],['Uitgever',m.p&&lk(m.p,m.pl)],['Meer info',m.l&&lk('Wikipedia',m.l)]].filter(r=>r[1]).map(([a,b])=>`<dt>${a}</dt><dd>${b}</dd>`).join(''):'';
+  const rows=m?[['Jaar',m.y&&esc(m.y)],['Regio',m.r&&esc(m.r)],['Platform',m.pf&&lk(m.pf,m.pfl)],['Ontwikkelaar',m.d&&lk(m.d,m.dl)],['Uitgever',m.p&&lk(m.p,m.pl)],['Andere titels',m.alt&&esc(m.alt)],['Meer info',m.l&&lk('Wikipedia',m.l)]].filter(r=>r[1]).map(([a,b])=>`<dt>${a}</dt><dd>${b}</dd>`).join(''):'';
   openSheet(`<button class="x" data-close aria-label="Sluiten">&times;</button>
   <div class="detail"><div>${cover(it)}</div><div class="dinfo"><h2>${esc(it.title)}</h2>
     <div class="tags"><span>${esc(it.console)}</span><span>${it.kind==='hw'?'Hardware':it.digital?'Digitaal':'Fysiek'}</span></div>
@@ -455,13 +474,13 @@ function form(id){const it=id?find(id):null;cur=it;
   bindForm($('#f'),d)}
 function bindForm(f,d){
   const E=f.elements,ul=$('#acl'),hint=$('#hint');let db=null,res=[],act=-1,meta=d.meta||null,mkey=meta?key(d.title):null,img=d.cover||'';
-  const showHint=()=>{const h=[];if(db)h.push(`<span>${nl(db.list.length)} titels beschikbaar voor ${esc(E.console.value.trim())}</span>`);
-    if(meta)h.push(...[meta.y,meta.pf,meta.d,meta.p].filter(Boolean).map(x=>`<span class="chip">${esc(x)}</span>`));hint.innerHTML=h.join('')};
+  const showHint=()=>{const h=[];if(db)h.push(`<span>${nl(db.count)} games beschikbaar voor ${esc(E.console.value.trim())}</span>`);
+    if(meta)h.push(...[meta.y,meta.r,meta.pf,meta.d,meta.p].filter(Boolean).map(x=>`<span class="chip">${esc(x)}</span>`));hint.innerHTML=h.join('')};
   const close=()=>{ul.hidden=true;E.title.setAttribute('aria-expanded','false');act=-1};
   const list=()=>{const q=key(E.title.value);if(!db||q.length<2)return close();
     const a=[],b=[];for(const r of db.list){const i=r.n.indexOf(q);if(i===0)a.push(r);else if(i>0)b.push(r);if(a.length>=8)break}
     res=[...a,...b].slice(0,8);if(!res.length)return close();
-    ul.innerHTML=res.map((r,i)=>`<li role="option" data-i="${i}"><span>${esc(r.t)}</span><small>${esc([r.y,r.d].filter(Boolean).join(', '))}</small></li>`).join('');
+    ul.innerHTML=res.map((r,i)=>`<li role="option" data-i="${i}"><span>${esc(r.t)}</span><small>${esc([r.rg,r.y,r.d].filter(Boolean).join(', '))}</small></li>`).join('');
     ul.hidden=false;E.title.setAttribute('aria-expanded','true');act=-1};
   const pick=i=>{const r=res[i];if(!r)return;E.title.value=r.t;meta=metaOf(r);mkey=key(r.t);close();showHint()};
   const loadCon=async()=>{db=null;showHint();const c=E.console.value.trim();if(!c||f.dataset.kind==='hw')return;db=await loadDB(c);showHint();if(document.activeElement===E.title)list()};
@@ -512,22 +531,44 @@ function renderData(){
   <div class="panel"><h2>Back-up</h2><p>Volledige back-up inclusief covers (JSON).</p>
     <div class="row"><button class="ghost" id="bk">Back-up maken</button><label class="ghost file">Back-up terugzetten<input type="file" id="rs" accept=".json" hidden></label></div></div>
   <div class="panel"><h2>Titeldatabases</h2><p>Kies je <code>...Games.json</code>-bestanden (meerdere tegelijk, bijv. <code>PS1Games.json</code>). Ze worden op dit toestel bewaard en geven autocomplete en extra info (jaar, platform, ontwikkelaar, uitgever). Werkt ook zonder server.</p>
-    <div class="row"><label class="primary file">JSON-bestanden kiezen<input type="file" id="dbf" accept=".json" multiple hidden></label><button class="ghost" id="en">Games opnieuw koppelen</button></div>
+    <div class="row"><a class="ghost" href="#/controle">Namen controleren</a><label class="primary file">JSON-bestanden kiezen<input type="file" id="dbf" accept=".json" multiple hidden></label><button class="ghost" id="en">Games opnieuw koppelen</button></div>
     <div id="dbstat" style="margin-top:14px"></div></div>
   <div class="panel"><h2>App</h2><p>${installEvt?'Installeer deze collectie op je beginscherm.':navigator.serviceWorker?.controller?'Offline beschikbaar. Installeren kan via het browsermenu.':'Offline modus wordt ingesteld na het eerste bezoek via http(s).'}</p>
     <div class="row">${installEvt?'<button class="primary" id="inst">Installeren</button>':''}<button class="danger" id="wipe">Alle gegevens wissen</button></div></div>`;dbStatus()}
 async function dbStatus(){const el=$('#dbstat');if(!el)return;
   const cons=[...new Set(items.filter(i=>i.kind==='game').map(i=>i.console))].sort(cmpCon);
   const rows=await Promise.all(cons.map(async c=>{const db=await loadDB(c),g=items.filter(i=>i.kind==='game'&&i.console===c);
-    return`<tr><td>${esc(c)}</td><td>${db?nl(db.list.length)+' titels':'<span class="mute">niet geladen</span>'}</td><td class="n">${g.filter(i=>i.meta).length}/${g.length}</td></tr>`}));
+    return`<tr><td>${esc(c)}</td><td>${db?nl(db.count)+' games':'<span class="mute">niet geladen</span>'}</td><td class="n">${g.filter(i=>i.meta).length}/${g.length}</td></tr>`}));
   if($('#dbstat'))$('#dbstat').innerHTML=`<table class="otable" style="margin:0"><thead><tr><th>Console</th><th>Database</th><th class="n">Gekoppeld</th></tr></thead><tbody>${rows.join('')}</tbody></table>`}
 
+/* ---------- namen controleren ---------- */
+const CK={con:'',all:false,sug:{}};
+async function renderCheck(){const el=$('#p-controle');
+  const games=items.filter(i=>i.kind==='game'),cons=[...new Set(games.map(i=>i.console))].sort(cmpCon),dbs={};
+  for(const c of cons)dbs[c]=await loadDB(c);
+  if(curPage()!=='controle')return;
+  const noDb=games.filter(i=>!dbs[i.console]),withDb=games.filter(i=>dbs[i.console]),todo=withDb.filter(i=>!i.meta&&!i.skip),linked=withDb.filter(i=>i.meta);
+  const rows=(CK.all?withDb.filter(i=>!i.skip||i.meta):todo).filter(i=>!CK.con||i.console===CK.con).sort(SORTS.console);
+  CK.sug={};
+  const row=i=>{const db=dbs[i.console];
+    if(i.meta){const m=i.meta;return`<li class="crow" data-id="${i.id}"><div class="cn"><b>${esc(i.title)}</b><small>${esc(i.console)}${m.r?', '+esc(m.r):''}${m.y?', '+esc(m.y):''}</small></div><div class="cs">${m.alt?`<small class="mute">Ook bekend als: ${esc(m.alt)}</small>`:''}<button class="chip" data-cedit="${i.id}">Wijzig</button></div></li>`}
+    const s=CK.sug[i.id]=suggest(db,i.title);
+    return`<li class="crow" data-id="${i.id}"><div class="cn"><b>${esc(i.title)}</b><small>${esc(i.console)}</small></div><div class="cs">${s.map((r,k)=>`<button class="chip" data-pick="${i.id}:${k}">${esc(r.t)}${r.rg?` (${esc(r.rg)})`:''}${r.y?`, ${esc(r.y)}`:''}</button>`).join('')||'<small class="mute">Geen suggesties</small>'}<button class="chip" data-cedit="${i.id}">Zoeken</button><button class="chip" data-cskip="${i.id}">Klopt zo</button></div></li>`};
+  el.innerHTML=`<a href="#/gegevens" class="mute">Terug naar gegevens</a><h1 style="margin-top:8px">Namen controleren</h1>
+  <p class="mute">${nl(linked.length)} van ${nl(withDb.length)} games zijn gekoppeld aan de database. ${nl(todo.length)} wachten op controle${noDb.length?`, ${nl(noDb.length)} hebben nog geen database`:''}. Kies de juiste naam (regio's staan tussen haakjes) en de titel wordt aangepast en aangevuld met jaar, ontwikkelaar en uitgever.</p>
+  <div class="toolbar" style="position:static;padding:6px 0 14px"><select id="ccon" aria-label="Console"><option value="">Alle consoles</option>${cons.filter(c=>dbs[c]).map(c=>`<option${CK.con===c?' selected':''}>${esc(c)}</option>`).join('')}</select>
+  <label class="chk"><input type="checkbox" id="call"${CK.all?' checked':''}> Toon ook gekoppelde</label></div>
+  <ul class="clist">${rows.map(row).join('')||'<li class="empty"><h2>Alles gecontroleerd</h2></li>'}</ul>`}
+function pickName(spec){const[id,k]=spec.split(':'),it=find(id),r=CK.sug[id]?.[k];if(!it||!r)return;
+  const old={title:it.title,meta:it.meta,skip:it.skip};it.title=r.t;it.meta=metaOf(r);delete it.skip;save();renderCheck();
+  toast(`Naam aangepast naar "${r.t}"`,()=>{Object.assign(it,old);save();renderCheck()})}
+
 /* ---------- router + events ---------- */
-const PAGES=['collectie','overzicht','gegevens'];
-function render(){const p=curPage();if(p==='collectie')renderCatalog();else if(p==='overzicht')renderOverview()}
+const PAGES=['collectie','overzicht','gegevens','controle'];
+function render(){const p=curPage();if(p==='collectie')renderCatalog();else if(p==='overzicht')renderOverview();else if(p==='controle')renderCheck()}
 const curPage=()=>PAGES.includes(location.hash.slice(2))?location.hash.slice(2):'collectie';
 function route(){const p=curPage();PAGES.forEach(x=>$('#p-'+x).hidden=x!==p);
-  $$('[data-nav]').forEach(a=>a.setAttribute('aria-current',a.dataset.nav===p?'page':'false'));
+  $$('[data-nav]').forEach(a=>a.setAttribute('aria-current',a.dataset.nav===p||(p==='controle'&&a.dataset.nav==='gegevens')?'page':'false'));
   if(p==='gegevens')renderData();else render();scrollTo(0,0)}
 addEventListener('hashchange',route);
 
@@ -538,6 +579,9 @@ document.addEventListener('click',async e=>{const t=e.target,c=s=>t.closest(s);l
   if(x=c('a[data-c]')){F.kind=x.dataset.k;F.consoles=new Set([x.dataset.c]);F.q='';return}
   if(x=c('[data-chip]')){const k=x.dataset.chip;
     if(k==='all')resetFilters();else{if(k.startsWith('c:'))F.consoles.delete(k.slice(2));else if(k==='type')F.type='all';else if(k==='price')F.min=F.max='';else if(k==='rated')F.rated=false;else if(k==='q')F.q='';syncInputs();renderCatalog()}return}
+  if(x=c('[data-pick]')){pickName(x.dataset.pick);return}
+  if(x=c('[data-cskip]')){const it=find(x.dataset.cskip);if(it){it.skip=true;save();renderCheck()}return}
+  if(x=c('[data-cedit]')){form(x.dataset.cedit);return}
   if(x=c('#kind button')){F.kind=x.dataset.kind;F.consoles.clear();renderCatalog();return}
   if(c('#fopen')){toggleFilters(true);return}
   if(c('[data-fclose]')){toggleFilters(false);return}
@@ -559,6 +603,8 @@ document.addEventListener('change',async e=>{const t=e.target,f=t.files?.[0];
   else if(t.name==='ftype'){F.type=t.value;renderCatalog()}
   else if(t.id==='frated'){F.rated=t.checked;renderCatalog()}
   else if(t.id==='sort'){F.sort=t.value;renderCatalog()}
+  else if(t.id==='ccon'){CK.con=t.value;renderCheck()}
+  else if(t.id==='call'){CK.all=t.checked;renderCheck()}
   else if(t.id==='imp'&&f){try{await loadXLSX();const next=fromWorkbook(XLSX.read(await f.arrayBuffer(),{type:'array'}));
     if(!next.length)return toast('Geen geldige rijen gevonden');
     if(confirm(`Huidige collectie (${items.length}) vervangen door ${next.length} items uit dit bestand?`)){adopt(next);toast(`${next.length} items geïmporteerd`)}}catch(err){toast(err.message)}t.value=''}
