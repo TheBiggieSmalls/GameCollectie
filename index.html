@@ -31,6 +31,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .top{position:sticky;top:0;z-index:30;background:var(--bg2);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
 .bar{display:flex;align-items:center;gap:24px;height:56px}
 .brand{font:800 1.15rem var(--hd);text-decoration:none;display:flex;align-items:center;gap:10px;margin-right:auto}
+#hinst{margin-left:0;padding:7px 12px}
 .dots{display:grid;grid-template-columns:repeat(2,8px);gap:2px}
 .dots b{width:8px;height:8px;border-radius:2px}
 .tabs{display:flex;gap:4px}
@@ -95,11 +96,16 @@ input[type=checkbox],input[type=radio]{accent-color:#c9c4b8;width:16px;height:16
 .grp h2{font-size:1.25rem;display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .grp h2 i{width:12px;height:12px;border-radius:3px}
 .grp h2 small{font:400 .9rem var(--bd);color:var(--mute)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:18px 16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:10px 16px;align-items:start}
+.gh{grid-column:1/-1;margin:22px 0 4px;font-size:1.25rem;display:flex;align-items:center;gap:10px}
+.gh:first-child{margin-top:0}
+.gh i{width:12px;height:12px;border-radius:3px}
+.gh small{font:400 .9rem var(--bd);color:var(--mute)}
+.cw{position:relative;display:block;margin-top:12px}
 .card{all:unset;box-sizing:border-box;min-width:0;cursor:pointer;display:flex;flex-direction:column;gap:10px;padding:8px;border-radius:var(--r);position:relative}
 .card:hover{background:var(--card)}
 .card:focus-visible{outline:2px solid var(--focus)}
-.cover{width:100%;position:relative;aspect-ratio:3/4;border-radius:6px;overflow:hidden;display:flex;container-type:inline-size;background:linear-gradient(165deg,var(--c1),var(--c2));box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 6px 14px rgba(0,0,0,.35)}
+.cover{width:100%;position:relative;z-index:1;border-radius:6px;overflow:hidden;display:flex;container-type:inline-size;background:linear-gradient(165deg,var(--c1),var(--c2));box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 6px 14px rgba(0,0,0,.35)}
 .cover.img{background:var(--card)}
 .cover img{width:100%;height:100%;object-fit:cover}
 .spine{flex:0 0 15%;background:rgba(0,0,0,.3);writing-mode:vertical-rl;transform:rotate(180deg);display:flex;align-items:center;justify-content:center;font:700 clamp(.6rem,7cqw,.85rem) var(--bd);color:#fff;padding:6px 0;overflow:hidden;white-space:nowrap}
@@ -107,9 +113,10 @@ input[type=checkbox],input[type=radio]{accent-color:#c9c4b8;width:16px;height:16
 .face b{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden;font-weight:inherit}
 .cover .boxart{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:1}
 .cover.art .spine,.cover.art .face{visibility:hidden}
+.dtoggle{display:none;margin:0 0 12px;padding:6px 14px}
 .ov{margin:0 0 14px}.ov summary{cursor:pointer;font-weight:600}
 .ov p{white-space:pre-line;margin:8px 0 0;color:var(--mute);max-height:200px;overflow:auto}
-.tag{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.65);border-radius:5px;padding:1px 7px;font-size:.72rem;font-weight:600;color:#fff}
+.tag{position:absolute;z-index:0;top:-12px;right:10px;background:#2c313c;border:1px solid var(--line);border-bottom:0;border-radius:6px 6px 0 0;padding:0 9px 12px;font:600 .68rem/12px var(--bd);color:var(--text)}
 .m{display:flex;flex-direction:column;gap:3px;min-width:0}
 .t{font-weight:600;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .card:not(.hasimg) .t{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
@@ -195,6 +202,7 @@ label.file{cursor:pointer}
 .cs{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;align-items:center;flex:1}
 .cs .chip{text-align:left}
 @media(max-width:640px){.crow{flex-direction:column;align-items:stretch;gap:8px}.cs{justify-content:flex-start}}
+#hinst{margin-left:auto}
 #toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:100;background:var(--text);color:#15171c;border-radius:10px;padding:10px 14px;display:flex;gap:14px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.5);max-width:calc(100% - 24px)}
 #toast button{background:none;border:0;font-weight:700;text-decoration:underline;color:inherit}
 
@@ -217,6 +225,7 @@ label.file{cursor:pointer}
   .detail{grid-template-columns:110px 1fr;gap:14px}
   .dinfo h2{font-size:1.3rem}
   #add .tx{display:none}
+  .dtoggle{display:inline-flex}.dmore{display:none}.dmore.open{display:block}
   .otable th:nth-child(4),.otable td:nth-child(4){display:none}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -230,6 +239,7 @@ label.file{cursor:pointer}
     <a href="#/overzicht" data-nav="overzicht">Overzicht</a>
     <a href="#/gegevens" data-nav="gegevens">Gegevens</a>
   </nav>
+  <button class="ghost" id="hinst" hidden>Installeren</button>
   <button class="primary" id="add"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span class="tx">Toevoegen</span></button>
 </div></header>
 
@@ -303,7 +313,72 @@ const idb=(()=>{let p;const open=()=>p||(p=new Promise((ok,no)=>{const r=indexed
   const run=(mode,f)=>open().then(d=>new Promise((ok,no)=>{const t=d.transaction('kv',mode),q=f(t.objectStore('kv'));t.oncomplete=()=>ok(q&&q.result);t.onerror=()=>no(t.error)}));
   return{get:k=>run('readonly',s=>s.get(k)),set:(k,v)=>run('readwrite',s=>s.put(v,k)),del:k=>run('readwrite',s=>s.delete(k)),keys:()=>run('readonly',s=>s.getAllKeys())}})();
 let items=[];
+/* ---------- Google Drive-back-up (versleuteld + wachtwoord) ---------- */
+const te=new TextEncoder(),td=new TextDecoder(),ITER=250000;
+const b64=buf=>{let s='';const u=new Uint8Array(buf);for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s)};
+const unb64=b=>Uint8Array.from(atob(b),c=>c.charCodeAt(0));
+const pbk=pw=>crypto.subtle.importKey('raw',te.encode(pw),'PBKDF2',false,['deriveKey','deriveBits']);
+const aesKey=async(pw,salt,use)=>crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:ITER,hash:'SHA-256'},await pbk(pw),{name:'AES-GCM',length:256},false,use);
+const pwHash=async(pw,salt)=>b64(await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:ITER,hash:'SHA-256'},await pbk(pw),256));
+async function setPassword(pw){const salt=crypto.getRandomValues(new Uint8Array(16));PREFS.pw={salt:b64(salt),hash:await pwHash(pw,salt)};await savePrefs()}
+async function checkPassword(pw){return!!PREFS.pw&&await pwHash(pw,unb64(PREFS.pw.salt))===PREFS.pw.hash}
+async function seal(pw,obj){const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},await aesKey(pw,salt,['encrypt']),te.encode(JSON.stringify(obj)));
+  return JSON.stringify({app:'collectie',v:1,salt:b64(salt),iv:b64(iv),data:b64(ct)})}
+async function unseal(pw,text){const j=JSON.parse(text);if(j.app!=='collectie')throw new Error('Geen geldig back-upbestand');
+  try{return JSON.parse(td.decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(j.iv)},await aesKey(pw,unb64(j.salt),['decrypt']),unb64(j.data))))}catch{throw new Error('Wachtwoord klopt niet')}}
+function askPassword(title,fields='<label class="f"><span>Wachtwoord</span><input type="password" name="pw" autocomplete="current-password" required></label>'){
+  return new Promise(ok=>{let done=false;
+    openSheet(`<button class="x" data-close aria-label="Sluiten">&times;</button><h2 style="margin-bottom:14px">${title}</h2><form id="pwf">${fields}<div class="actions"><button class="primary">Bevestigen</button><button type="button" class="ghost" data-cancel>Annuleren</button></div></form>`);
+    const f=$('#pwf');f.addEventListener('submit',e=>{e.preventDefault();done=true;const v=Object.fromEntries(new FormData(f));close_();ok(v)});
+    sheet.addEventListener('close',()=>{if(!done)ok(null)},{once:true});setTimeout(()=>f.elements[0]?.focus(),60)})}
+async function newPassword(){
+  const v=await askPassword('Nieuw wachtwoord','<label class="f"><span>Nieuw wachtwoord (minstens 8 tekens)</span><input type="password" name="pw" minlength="8" autocomplete="new-password" required></label><label class="f"><span>Herhaal wachtwoord</span><input type="password" name="pw2" minlength="8" autocomplete="new-password" required></label>');
+  if(!v)return;if(v.pw!==v.pw2)return toast('Wachtwoorden komen niet overeen');
+  await setPassword(v.pw);toast('Wachtwoord ingesteld');renderData()}
+async function changePassword(){const v=await askPassword('Huidig wachtwoord');if(!v)return;if(!await checkPassword(v.pw))return toast('Wachtwoord onjuist');await newPassword()}
+function gisToken(){return new Promise((ok,no)=>{const id=PREFS.clientId;if(!id)return no(new Error('Vul eerst je Google Client-ID in'));
+  const go=()=>{try{google.accounts.oauth2.initTokenClient({client_id:id,scope:'https://www.googleapis.com/auth/drive.appdata',
+    callback:r=>r.access_token?ok(r.access_token):no(new Error(r.error_description||r.error||'Geen toegang')),error_callback:e=>no(new Error(e.type==='popup_closed'?'Geannuleerd':'Google-login mislukt'))}).requestAccessToken({prompt:''})}catch(e){no(e)}};
+  if(window.google?.accounts?.oauth2)return go();
+  const s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.onload=go;s.onerror=()=>no(new Error('Google niet bereikbaar (offline?)'));document.head.append(s)})}
+const DRV='https://www.googleapis.com/';
+async function drvFind(tok){const r=await fetch(`${DRV}drive/v3/files?spaces=appDataFolder&q=${encodeURIComponent("name='collectie-backup.json'")}&fields=files(id)`,{headers:{Authorization:'Bearer '+tok}});
+  if(!r.ok)throw new Error('Drive-fout '+r.status);return(await r.json()).files?.[0]||null}
+async function driveSave(){
+  const v=await askPassword('Opslaan naar Google Drive');if(!v)return;
+  if(!await checkPassword(v.pw))return toast(PREFS.pw?'Wachtwoord onjuist, er is niets opgeslagen':'Stel eerst een wachtwoord in');
+  toast('Bezig met opslaan…');
+  try{const tok=await gisToken(),body=await seal(v.pw,{v:1,ts:Date.now(),items,aspect:PREFS.aspect}),f=await drvFind(tok);let r;
+    if(f)r=await fetch(`${DRV}upload/drive/v3/files/${f.id}?uploadType=media`,{method:'PATCH',headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json'},body});
+    else{const bd='b'+uid(),meta=JSON.stringify({name:'collectie-backup.json',parents:['appDataFolder']});
+      r=await fetch(`${DRV}upload/drive/v3/files?uploadType=multipart`,{method:'POST',headers:{Authorization:'Bearer '+tok,'Content-Type':'multipart/related; boundary='+bd},
+        body:`--${bd}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${bd}\r\nContent-Type: application/json\r\n\r\n${body}\r\n--${bd}--`})}
+    if(!r.ok)throw new Error('Drive-fout '+r.status);PREFS.lastDrive=Date.now();await savePrefs();toast('Opgeslagen op Google Drive');if(curPage()==='gegevens')renderData()}
+  catch(e){toast(e.message||'Opslaan mislukt')}}
+async function driveRestore(){
+  const v=await askPassword('Terugzetten van Google Drive');if(!v)return;
+  try{const tok=await gisToken(),f=await drvFind(tok);if(!f)return toast('Geen back-up gevonden op Drive');
+    const r=await fetch(`${DRV}drive/v3/files/${f.id}?alt=media`,{headers:{Authorization:'Bearer '+tok}});if(!r.ok)throw new Error('Drive-fout '+r.status);
+    const d=await unseal(v.pw,await r.text());if(!Array.isArray(d.items))throw new Error('Back-up is leeg');
+    if(!confirm(`Back-up met ${d.items.length} items terugzetten? De huidige collectie wordt vervangen.`))return;
+    items=d.items;PREFS.aspect=d.aspect||{};await savePrefs();save();render();toast('Teruggezet van Drive')}
+  catch(e){toast(e.message||'Terugzetten mislukt')}}
+/* covers van de collectie vooraf offline opslaan (de service worker bewaart ze) */
+async function prefetchCovers(){const urls=[...new Set(items.map(artOf).filter(Boolean))];
+  if(!urls.length)return toast('Geen covers om op te slaan');
+  if(!navigator.serviceWorker?.controller)return toast('Offline-opslag is nog niet actief. Laad de pagina opnieuw.');
+  let n=0,fail=0;const el=$('#covstat'),q=[...urls];
+  const worker=async()=>{while(q.length){const u=q.pop();try{await fetch(u,{mode:'no-cors',referrerPolicy:'no-referrer'})}catch{fail++}n++;if(el)el.textContent=`${n}/${urls.length}`}};
+  await Promise.all(Array.from({length:4},worker));toast(fail?`${urls.length-fail} covers opgeslagen, ${fail} mislukt`:`${urls.length} covers offline beschikbaar`)}
+
 const save=debounce(()=>idb.set('items',items).catch(()=>toast('Opslaan mislukt')),150);
+
+/* ---------- voorkeuren + casevormen ---------- */
+const PREFS={aspect:{}};const savePrefs=()=>idb.set('prefs',PREFS).catch(()=>{});
+const AR={ps1:1,ps2:.71,ps3:.79,ps4:.79,ps5:.79,psp:.58,'ps-vita':.6,xbox:.71,'xbox-original':.71,'xbox-360':.71,'xbox-one':.79,wii:.71,'wii-u':.8,switch:.62,ds:.72,'3ds':.72,gba:.9,gbc:.9,gb:.9,n64:1.35,pc:.71,steam:.67,'epic-games':.75,gog:.71};
+const ARPRESETS=[['Vierkant (1:1)',1],['Bijna vierkant (9:10)',.9],['Blu-ray (4:5)',.8],['DVD-case (5:7)',.71],['Staand (3:4)',.75],['Smal (3:5)',.6]];
+const arOf=c=>PREFS.aspect[slug(c)]||AR[slug(c)]||.75;
 
 /* ---------- consolefamilies + kleuren ---------- */
 const FAMS=['PlayStation','Nintendo','Xbox','PC','Overig'];
@@ -322,10 +397,14 @@ const swatch=c=>{const[h,s,l]=tone(c);return`hsl(${h} ${s}% ${l+12}%)`};
 const IMGHOST='https://images.launchbox-app.com//';
 const artOf=it=>{const m=it.meta;if(!m?.ims?.length)return'';const f=m.ims[(m.imi||0)%m.ims.length];return f?IMGHOST+f[0]:''};
 const hasArt=it=>!!(it.cover||artOf(it));
-function cover(it){
-  if(it.cover)return`<div class="cover img"><img src="${it.cover}" alt="" loading="lazy"></div>`;
+function cover(it,lazy){
+  const ar=arOf(it.console);
+  if(it.cover)return`<div class="cover img" style="aspect-ratio:${ar}"><img src="${it.cover}" alt=""${lazy?' loading="lazy"':''}></div>`;
   const[h,s,l]=tone(it.console),a=artOf(it);
-  return`<div class="cover${a?' art':''}" style="--c1:hsl(${h} ${s}% ${l}%);--c2:hsl(${h} ${s}% ${l-11}%)"><span class="spine">${esc(it.console)}</span><span class="face"><b>${esc(it.title)}</b></span>${a?`<img class="boxart" src="${esc(a)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`:''}</div>`}
+  return`<div class="cover${a?' art':''}" style="aspect-ratio:${ar};--c1:hsl(${h} ${s}% ${l}%);--c2:hsl(${h} ${s}% ${l-11}%)"><span class="spine">${esc(it.console)}</span><span class="face"><b>${esc(it.title)}</b></span>${a?`<img class="boxart" ${lazy?'data-src':'src'}="${esc(a)}" alt="" decoding="async" referrerpolicy="no-referrer">`:''}</div>`}
+/* covers pas laden als ze bijna in beeld komen */
+const imgIO='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;const i=e.target;imgIO.unobserve(i);if(i.dataset.src){i.src=i.dataset.src;delete i.dataset.src}}),{rootMargin:'250px 0px'}):null;
+const watchImgs=root=>$$('img[data-src]',root).forEach(i=>imgIO?imgIO.observe(i):(i.src=i.dataset.src));
 const stars=n=>`<span class="st" role="img" aria-label="${n} van 5 sterren"><b>${'★'.repeat(n)}</b>${'★'.repeat(5-n)}</span>`;
 const priceText=it=>it.digital?'Digitaal':eur.format(it.price||0);
 
@@ -339,20 +418,32 @@ function fix(s){if(!MOJI.test(s))return s;
   try{const b=Uint8Array.from(s,c=>{const n=c.charCodeAt(0);if(n<256)return n;if(CP1252[n]===undefined)throw 0;return CP1252[n]});return new TextDecoder('utf-8',{fatal:true}).decode(b)}catch{return s}}
 const REGPREF=['Europe','Germany','United Kingdom','North America','United States','World','Australia','France','Spain','Italy','Japan'];
 const regRank=r=>{const i=REGPREF.indexOf(r);return i<0?99:i};
-/* Leest een LaunchBox-bestand (<Game>, <GameImage> Box - Front, <GameAlternateName>) */
+/* Leest een LaunchBox-bestand zonder DOM (snel en zuinig bij grote bestanden) */
+const XENT={amp:'&',lt:'<',gt:'>',quot:'"',apos:"'"};
+const unent=s=>s.indexOf('&')<0?s:s.replace(/&(#x[0-9a-f]+|#\d+|amp|lt|gt|quot|apos);/gi,(m,e)=>e[0]==='#'?String.fromCodePoint(e[1]==='x'||e[1]==='X'?parseInt(e.slice(2),16):parseInt(e.slice(1),10)):XENT[e.toLowerCase()]);
+const fld=(b,t)=>{const i=b.indexOf('<'+t+'>');if(i<0)return'';const j=b.indexOf('</'+t+'>',i);return j<0?'':fix(unent(b.slice(i+t.length+2,j)).trim())};
 function parseLB(text){
-  const doc=new DOMParser().parseFromString(text.replace(/^\uFEFF/,''),'application/xml');
-  if(doc.getElementsByTagName('parsererror').length)throw new Error('Ongeldig XML-bestand');
-  const T=(e,t)=>fix((e.getElementsByTagName(t)[0]?.textContent||'').trim());
-  const G=new Map(),IM=new Map(),AL=new Map();
-  for(const e of doc.documentElement.children){const tag=e.tagName;
-    if(tag==='Game'){const id=T(e,'DatabaseID');if(!id)continue;const cr=parseFloat(T(e,'CommunityRating'));
-      G.set(id,{id,t:T(e,'Name'),y:(T(e,'ReleaseDate')||T(e,'ReleaseYear')).slice(0,4),pf:T(e,'Platform'),d:T(e,'Developer'),p:T(e,'Publisher'),g:T(e,'Genres'),
-        ov:T(e,'Overview'),l:T(e,'WikipediaURL'),vd:T(e,'VideoURL'),e:T(e,'ESRB'),pl:T(e,'MaxPlayers'),cr:cr?Math.round(cr*10)/10:0,
-        rc:parseInt(T(e,'CommunityRatingCount'))||0,co:T(e,'Cooperative')==='true'})}
-    else if(tag==='GameImage'){if(T(e,'Type')!=='Box - Front')continue;const id=T(e,'DatabaseID'),f=T(e,'FileName');if(id&&f)(IM.get(id)||IM.set(id,[]).get(id)).push([f,T(e,'Region')])}
-    else if(tag==='GameAlternateName'){const id=T(e,'DatabaseID'),n=T(e,'AlternateName');if(id&&n)(AL.get(id)||AL.set(id,[]).get(id)).push({n,r:T(e,'Region')})}}
+  if(!/<Game>/.test(text))throw new Error('Geen LaunchBox-spelbestand');
+  const G=new Map(),IM=new Map(),AL=new Map(),re=/<(Game|GameImage|GameAlternateName)>([\s\S]*?)<\/\1>/g;let m;
+  while((m=re.exec(text))){const tag=m[1],b=m[2];
+    if(tag==='Game'){const id=fld(b,'DatabaseID');if(!id)continue;const cr=parseFloat(fld(b,'CommunityRating'));
+      G.set(id,{id,t:fld(b,'Name'),y:(fld(b,'ReleaseDate')||fld(b,'ReleaseYear')).slice(0,4),pf:fld(b,'Platform'),d:fld(b,'Developer'),p:fld(b,'Publisher'),g:fld(b,'Genres'),
+        ov:fld(b,'Overview'),l:fld(b,'WikipediaURL'),vd:fld(b,'VideoURL'),e:fld(b,'ESRB'),pl:fld(b,'MaxPlayers'),cr:cr?Math.round(cr*10)/10:0,rc:parseInt(fld(b,'CommunityRatingCount'))||0,co:fld(b,'Cooperative')==='true'})}
+    else if(tag==='GameImage'){if(fld(b,'Type')!=='Box - Front')continue;const id=fld(b,'DatabaseID'),f=fld(b,'FileName');if(id&&f)(IM.get(id)||IM.set(id,[]).get(id)).push([f,fld(b,'Region')])}
+    else{const id=fld(b,'DatabaseID'),n=fld(b,'AlternateName');if(id&&n)(AL.get(id)||AL.set(id,[]).get(id)).push({n,r:fld(b,'Region')})}}
   return[...G.values()].filter(g=>g.t).map(g=>({...g,alts:AL.get(g.id)||[],im:(IM.get(g.id)||[]).sort((a,b)=>regRank(a[1])-regRank(b[1])).slice(0,4)}))}
+/* Platforms.xml: info over de hardware zelf */
+function parsePlatforms(text){const out=new Map(),alts=[],re=/<(Platform|PlatformAlternateName)>([\s\S]*?)<\/\1>/g;let m;
+  while((m=re.exec(text))){const b=m[2];
+    if(m[1]==='Platform'){const n=fld(b,'Name');if(n)out.set(n,{n,alts:[],dev:fld(b,'Developer'),mf:fld(b,'Manufacturer'),y:fld(b,'ReleaseDate').slice(0,4),cpu:fld(b,'Cpu'),mem:fld(b,'Memory'),gfx:fld(b,'Graphics'),snd:fld(b,'Sound'),disp:fld(b,'Display'),media:fld(b,'Media'),ctl:fld(b,'MaxControllers'),notes:fld(b,'Notes'),cat:fld(b,'Category')})}
+    else alts.push([fld(b,'Name'),fld(b,'Alternate')])}
+  alts.forEach(([n,a])=>out.get(n)?.alts.push(a));return[...out.values()]}
+const mkPlat=a=>{const map=new Map();a.forEach(p=>[p.n,...p.alts].forEach(x=>{const k=key(x);if(k&&!map.has(k))map.set(k,p)}));return{list:a,map}};
+let PLAT=null;
+function loadPlat(){return PLAT??=(async()=>{try{const a=await idb.get('plat');if(Array.isArray(a)&&a.length)return mkPlat(a)}catch{}
+  for(const u of['db/Platforms.xml','db/platforms.xml','Platforms.xml']){try{const r=await fetch(u);if(!r.ok)continue;const a=parsePlatforms(await r.text());if(a.length){idb.set('plat',a).catch(()=>{});return mkPlat(a)}}catch{}}
+  return null})()}
+const platFor=async c=>{const P=await loadPlat();return P?(P.map.get(key(c))||P.map.get(key(c.replace(/original|console/gi,'')))||null):null};
 /* Eén record per naam/regio: hoofdnaam + alternatieve namen (zelfde DatabaseID) */
 function toRecs(r){
   if(r.Game!==undefined)return legacyRecs(r);
@@ -372,30 +463,46 @@ function suggest(db,title){const A=new Set(words(title)),k=key(title);if(!A.size
     let sc=i/(A.size+B.size-i);if(r.n.startsWith(k)||k.startsWith(r.n))sc+=.3;if(sc>=.4)out.push([sc,r])}
   return out.sort((a,b)=>b[0]-a[0]).slice(0,4).map(x=>x[1])}
 const GDB={};
-const ALIAS={cube:'Gamecube','nintendo-gamecube':'Gamecube','wii-u':'WiiU',xbox:'XBOX','xbox-original':'XBOX','xbox-360':'XBOX360',steam:['Steam','Windows'],pc:['Windows','Steam'],'epic-games':['Windows','Steam'],gog:['Windows','Steam']};
-/* Volgorde: geïmporteerd (db:) > lokale cache (dbc:) > db/<Console>games.xml van de server > oude JSON */
+const ALIAS={gba:'NGBAdvance','game-boy-advance':'NGBAdvance',gbc:'NGBColor','game-boy-color':'NGBColor',gb:'NGB','game-boy':'NGB',
+  ds:'NDS','nintendo-ds':'NDS',n64:'N64','nintendo-64':'N64',cube:'NGameCube',gamecube:'NGameCube','nintendo-gamecube':'NGameCube',
+  wii:'NWii','wii-u':'NWiiU',wiiu:'NWiiU',switch:'NSwitch','switch-2':'NSwitch2',
+  xbox:['Xbox','MXbox'],'xbox-original':['Xbox','MXbox'],'xbox-360':['Xbox360','MXbox360'],xbox360:['Xbox360','MXbox360'],'xbox-one':['XboxOne','MXboxOne'],
+  'xbox-series-x-s':['XboxSeriesXS','MXboxSeriesXS'],'xbox-series-x':['XboxSeriesXS','MXboxSeriesXS'],'xbox-series-s':['XboxSeriesXS','MXboxSeriesXS'],
+  'ps-vita':'PSV',vita:'PSV',psvita:'PSV',android:'Android',steam:'Windows',pc:'Windows','epic-games':'Windows',gog:'Windows'};
+const nameVariants=a=>[...new Set(a.flatMap(n=>[n,n.replace(/^[NM](?=[A-Z])/,'')]))];
+async function fetchLB(u){try{const r=await fetch(u);if(!r.ok)return null;const a=parseLB(await r.text());return a.length?a:null}catch{return null}}
+async function fetchParts(n){const all=[];
+  for(let i=1;i<=12;i++){let a=null;for(const u of[`db/${n}games_part_${i}.xml`,`db/${n}Games_part_${i}.xml`,`db/${n}games_part${i}.xml`])if(a=await fetchLB(u))break;if(!a)break;all.push(...a)}
+  return all}
+/* Volgorde: geïmporteerd (db:) > lokale cache (dbc:) > db/<Console>games.xml (of _part_N) van de server > oude JSON */
 function loadDB(c){const k=slug(c);if(!k)return Promise.resolve(null);
-  return GDB[k]??=(async()=>{const names=[].concat(ALIAS[k]||c.trim().replace(/\s+/g,''));
+  const plain=c.trim().replace(/\s+/g,''),names=nameVariants([].concat(ALIAS[k]||[plain,'N'+plain,'M'+plain]));
+  return GDB[names[0].toLowerCase()]??=(async()=>{
     const mk=a=>{const list=a.flatMap(toRecs).filter(x=>x.t&&x.n),map=new Map();list.forEach(x=>map.has(x.n)||map.set(x.n,x));return{list,map,count:a.length}};
     for(const pre of['db:','dbc:'])for(const n of names){try{const a=await idb.get(pre+n.toLowerCase());if(Array.isArray(a))return mk(a)}catch{}}
     for(const n of names){
-      for(const u of[`db/${n}games.xml`,`db/${n}Games.xml`]){try{const r=await fetch(u);if(!r.ok)continue;const a=parseLB(await r.text());
-        if(a.length){idb.set('dbc:'+n.toLowerCase(),a).catch(()=>{});return mk(a)}}catch{}}
-      for(const u of[`db/${n}Games.json`,`db/${n}games.json`]){try{const r=await fetch(u);if(!r.ok)continue;const a=await r.json();if(Array.isArray(a))return mk(a)}catch{}}}
+      let a=await fetchLB(`db/${n}games.xml`)||await fetchLB(`db/${n}Games.xml`);
+      if(!a){const p=await fetchParts(n);if(p.length)a=p}
+      if(a){idb.set('dbc:'+n.toLowerCase(),a).catch(()=>{});return mk(a)}
+      for(const u of[`db/${n}Games.json`,`db/${n}games.json`]){try{const r=await fetch(u);if(!r.ok)continue;const j=await r.json();if(Array.isArray(j))return mk(j)}catch{}}}
     return null})()}
 const metaOf=r=>{const m={v:4};for(const k of['y','d','p','pf','l','g','ov','e','pl','vd','gid'])if(r[k])m[k]=String(r[k]);
   if(m.pf)m.pf=m.pf.replace(/^the\s+/i,'');if(r.cr)m.cr=r.cr;if(r.rc)m.rc=r.rc;if(r.co)m.co=1;if(r.rg)m.r=r.rg;if(r.alts?.length)m.alt=r.alts.join('; ');
   if(r.ims?.length){m.ims=r.ims;const k=r.rg?r.ims.findIndex(x=>x[1]===r.rg):-1;m.imi=k>0?k:0}
   return Object.keys(m).length>1?m:null};
-async function importDBs(files){let n=0;
-  for(const f of files){const m=f.name.match(/^(.*?)games\.(xml|json)$/i);if(!m)continue;
-    try{const txt=await f.text(),a=/xml$/i.test(f.name)?parseLB(txt):JSON.parse(txt);if(Array.isArray(a)&&a.length){await idb.set('db:'+m[1].toLowerCase(),a);n++}}catch(err){toast(err.message||'Bestand niet leesbaar')}}
+async function importDBs(files){let n=0;const groups=new Map();
+  for(const f of files){
+    if(/^platforms\.xml$/i.test(f.name)){try{const a=parsePlatforms(await f.text());if(a.length){await idb.set('plat',a);PLAT=null;n++}}catch(err){toast(err.message)}continue}
+    const m=f.name.match(/^(.*?)games(?:[_-]?part[_-]?(\d+))?\.(xml|json)$/i);if(!m)continue;
+    try{const txt=await f.text(),a=/xml$/i.test(f.name)?parseLB(txt):JSON.parse(txt);
+      if(Array.isArray(a)&&a.length){const k=m[1].toLowerCase();(groups.get(k)||groups.set(k,[]).get(k)).push([+m[2]||0,a])}}catch(err){toast(err.message||'Bestand niet leesbaar')}}
+  for(const[k,parts]of groups){await idb.set('db:'+k,parts.sort((a,b)=>a[0]-b[0]).flatMap(p=>p[1]));n++}
   Object.keys(GDB).forEach(k=>delete GDB[k]);const e=await enrich();toast(`${n} databases geladen, ${e} games aangevuld`);renderData()}
 async function enrich(){let n=0;
   for(const c of new Set(items.filter(i=>i.kind==='game'&&(!i.meta||i.meta.v!==4)).map(i=>i.console))){
     const db=await loadDB(c);if(!db)continue;
     for(const i of items)if(i.kind==='game'&&i.console===c&&(!i.meta||i.meta.v!==4)){const r=db.map.get(key(i.title));if(r){i.meta=metaOf(r);n++}}}
-  if(n){save();render()}return n}
+  if(n){save();render(true)}return n}
 
 /* ---------- Excel ---------- */
 let xl;const loadXLSX=()=>xl||(xl=new Promise((ok,no)=>{if(window.XLSX)return ok();const s=document.createElement('script');s.src='xlsx.js';s.onload=ok;s.onerror=()=>{xl=null;no(new Error('xlsx.js niet gevonden'))};document.head.append(s)}));
@@ -408,9 +515,21 @@ function fromWorkbook(wb){const out=[],t0=Date.now();
         extra:String(r.Extra||'').trim(),rating:Math.min(5,Number(r.Beoordeling)||0),review:String(r.Review||''),meta:Object.keys(m).length?m:null,added:t0+out.length})}}
   return out}
 const mergeKey=i=>`${i.kind}|${key(i.console)}|${key(i.title)}`;
-function adopt(next){const old=new Map(items.map(i=>[mergeKey(i),i]));
-  next.forEach(n=>{const o=old.get(mergeKey(n));if(o){n.cover=o.cover;n.rating=n.rating||o.rating;n.review=n.review||o.review;n.meta=n.meta||o.meta}});
-  items=next;save();render();enrich()}
+function adopt(next,keepLocal){const old=new Map(items.map(i=>[mergeKey(i),i]));
+  next.forEach(n=>{const o=old.get(mergeKey(n));if(o){n.cover=o.cover;n.rating=n.rating||o.rating;n.review=n.review||o.review;n.meta=n.meta||o.meta;n.skip=o.skip}});
+  if(keepLocal){const nk=new Set(next.map(mergeKey));items.filter(i=>i.local&&!nk.has(mergeKey(i))).forEach(i=>next.push(i))}
+  items=next;save();render(true);enrich()}
+const sha=async buf=>{try{return[...new Uint8Array(await crypto.subtle.digest('SHA-1',buf))].map(b=>b.toString(16).padStart(2,'0')).join('')}catch{let h=0;const u=new Uint8Array(buf);for(let i=0;i<u.length;i+=7)h=(h*31+u[i])>>>0;return u.length+':'+h}};
+/* Controleert bij elke start (of handmatig) of database.xlsx op de server nieuwer is */
+async function checkSeed(manual){
+  let r;try{r=await fetch('database.xlsx',{cache:'no-store'})}catch{if(manual)toast('Geen verbinding met de server');return}
+  if(!r.ok){if(manual)toast('Geen database.xlsx op de server gevonden');return}
+  const buf=await r.arrayBuffer(),sig=await sha(buf);let seen,no;try{[seen,no]=await Promise.all([idb.get('seedSig'),idb.get('seedNo')])}catch{}
+  if(sig===seen){if(manual)toast('database.xlsx is al verwerkt');return}
+  if(!manual&&sig===no)return;
+  try{await loadXLSX();const next=fromWorkbook(XLSX.read(buf,{type:'array'}));if(!next.length)return;
+    if(!items.length||confirm(`Nieuwe database.xlsx gevonden (${next.length} items). Importeren?\nCovers, reviews en lokaal toegevoegde items blijven behouden.`)){adopt(next,true);await idb.set('seedSig',sig);toast(`${next.length} items bijgewerkt`)}
+    else await idb.set('seedNo',sig)}catch(err){if(manual)toast(err.message)}}
 async function exportXLSX(){await loadXLSX();
   const g=items.filter(i=>i.kind==='game').map(i=>({Console:i.console,Game_Titel:i.title,Prijs:i.price,Digital:i.digital?'x':'',Extra:i.extra,Beoordeling:i.rating||'',Review:i.review,Jaar:i.meta?.y||'',Platform:i.meta?.pf||'',Ontwikkelaar:i.meta?.d||'',Uitgever:i.meta?.p||'',Link:i.meta?.l||'',DatabaseID:i.meta?.gid||''}));
   const h=items.filter(i=>i.kind==='hw').map(i=>({Hardware:i.console,Hardware_Titel:i.title,Prijs:i.price,Extra:i.extra,Beoordeling:i.rating||'',Review:i.review}));
@@ -438,7 +557,7 @@ const SORTS={
   score:(a,b)=>b.rating-a.rating||byTitle(a,b),
   year:(a,b)=>(+b.meta?.y||0)-(+a.meta?.y||0)||byTitle(a,b),
   new:(a,b)=>b.added-a.added};
-const card=it=>`<button class="card${hasArt(it)?' hasimg':''}" data-id="${it.id}">${cover(it)}${it.digital?'<span class="tag">Digitaal</span>':''}
+const card=it=>`<button class="card${hasArt(it)?' hasimg':''}" data-id="${it.id}"><span class="cw">${it.digital?'<span class="tag">Digitaal</span>':''}${cover(it,true)}</span>
   <span class="m"><span class="t">${esc(it.title)}</span><span class="m1"><span>${esc(it.console)}</span><span class="price">${it.digital?'':eur.format(it.price||0)}</span></span>${it.rating?stars(it.rating):''}</span></button>`;
 function renderConsoleList(){
   const cnt={};items.filter(i=>matches(i,'consoles')).forEach(i=>cnt[i.console]=(cnt[i.console]||0)+1);
@@ -455,18 +574,31 @@ function renderChips(){
   if(F.q)c.push(['q',`"${F.q}"`]);
   $('#chips').innerHTML=c.map(([k,l])=>`<button class="chip" data-chip="${esc(k)}">${esc(l)} &times;</button>`).join('')+(c.length>1?'<button class="chip" data-chip="all">Alles wissen</button>':'');
   const n=c.length-(F.q?1:0);$('#fbadge').textContent=n?` (${n})`:''}
-function renderCatalog(){
+const R={entries:[],pos:0,grid:null},BATCH=48;
+function renderBatch(n){if(!R.grid)return;const end=Math.min(R.pos+n,R.entries.length);
+  R.grid.insertAdjacentHTML('beforeend',R.entries.slice(R.pos,end).join(''));R.pos=end;watchImgs(R.grid);
+  const more=$('#more');if(more)more.hidden=R.pos>=R.entries.length}
+function fill(){const more=$('#more');while(R.grid&&R.pos<R.entries.length&&more.getBoundingClientRect().top<innerHeight+900)renderBatch(BATCH)}
+const moreIO='IntersectionObserver' in window?new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting))fill()},{rootMargin:'900px 0px'}):null;
+function renderCatalog(keep){
+  const y=scrollY,done=R.pos;
   renderConsoleList();renderChips();
   $('#typeSec').hidden=F.kind==='hw';
   $$('#kind button').forEach(b=>b.classList.toggle('on',b.dataset.kind===F.kind));
   const list=items.filter(i=>matches(i)).sort(SORTS[F.sort]);
   $('#count').textContent=`${nl(list.length)} ${list.length===1?'item':'items'}`;
-  const g=$('#grid');
+  const g=$('#grid');R.grid=null;moreIO?.disconnect();
   if(!items.length){g.innerHTML=`<div class="empty"><h2>Nog geen collectie</h2><p>Importeer je Excel-bestand of voeg het eerste item toe.</p><a class="primary" href="#/gegevens">Naar gegevens</a><button class="ghost" data-add>Item toevoegen</button></div>`;return}
   if(!list.length){g.innerHTML=`<div class="empty"><h2>Niets gevonden</h2><p>Pas je zoekopdracht of filters aan.</p><button class="ghost" data-chip="all">Filters wissen</button></div>`;return}
-  if(F.sort==='console'){const by=new Map();list.forEach(i=>(by.get(i.console)||by.set(i.console,[]).get(i.console)).push(i));
-    g.innerHTML=[...by].map(([c,a])=>`<section class="grp"><h2><i style="background:${swatch(c)}"></i>${esc(c)}<small>${a.length}</small></h2><div class="grid">${a.map(card).join('')}</div></section>`).join('')}
-  else g.innerHTML=`<div class="grid">${list.map(card).join('')}</div>`}
+  const E=[];
+  if(F.sort==='console'){const cnt={};list.forEach(i=>cnt[i.console]=(cnt[i.console]||0)+1);let last=null;
+    list.forEach(i=>{if(i.console!==last){last=i.console;E.push(`<h2 class="gh"><i style="background:${swatch(last)}"></i>${esc(last)}<small>${cnt[last]}</small></h2>`)}E.push(card(i))})}
+  else list.forEach(i=>E.push(card(i)));
+  if(keep)g.style.minHeight=g.offsetHeight+'px';
+  g.innerHTML='<div class="grid"></div><div id="more"></div>';
+  R.entries=E;R.pos=0;R.grid=g.firstChild;
+  if(!moreIO)renderBatch(E.length);else{renderBatch(keep?Math.max(done,BATCH):BATCH);moreIO.observe($('#more'));fill()}
+  if(keep){scrollTo(0,y);requestAnimationFrame(()=>{g.style.minHeight='';scrollTo(0,y)})}else g.style.minHeight=''}
 function syncInputs(){$('#q').value=F.q;$('#sort').value=F.sort;$('#pmin').value=F.min;$('#pmax').value=F.max;$('#frated').checked=F.rated;
   $$('input[name=ftype]').forEach(r=>r.checked=r.value===F.type)}
 function resetFilters(){Object.assign(F,{q:'',type:'all',min:'',max:'',rated:false});F.consoles.clear();syncInputs();renderCatalog()}
@@ -488,17 +620,23 @@ function detail(id){cur=find(id);if(!cur)return;const it=cur,m=it.meta;
     <div class="tags"><span>${esc(it.console)}</span><span>${it.kind==='hw'?'Hardware':it.digital?'Digitaal':'Fysiek'}</span></div>
     <p class="big">${it.digital?'':eur.format(it.price||0)}</p>
     ${it.extra?`<p class="note">${esc(it.extra)}</p>`:''}
-    ${rows?`<dl class="meta">${rows}</dl>`:''}
+    <button class="ghost dtoggle" type="button" data-more aria-expanded="false">Meer details</button>
+    <div class="dmore">${rows?`<dl class="meta">${rows}</dl>`:''}
     ${m?.ov?`<details class="ov"><summary>Beschrijving</summary><p>${esc(m.ov)}</p></details>`:''}
-    ${!m&&it.kind==='game'?'<p class="saved" id="dbnote"></p>':''}
+    ${it.kind==='hw'?'<div id="hwinfo"></div>':''}
+    ${!m&&it.kind==='game'?'<p class="saved" id="dbnote"></p>':''}</div>
   </div></div>
   <div class="rev" style="margin-top:18px"><h3>Jouw beoordeling</h3>
     <div class="stars" role="group" aria-label="Beoordeling">${[1,2,3,4,5].map(n=>`<button data-star="${n}" aria-label="${n} ${n===1?'ster':'sterren'}" class="${n<=it.rating?'on':''}">★</button>`).join('')}</div>
     <textarea id="rev" placeholder="Wat vond je ervan?" aria-label="Review">${esc(it.review)}</textarea><div class="saved" id="saved"></div></div>
   <div class="actions"><button class="ghost" data-edit>Bewerken</button><button class="danger" data-del>Verwijderen</button></div>`);
-  if(it.kind==='game'&&!m)loadDB(it.console).then(db=>{const n=$('#dbnote');if(n)n.textContent=db?'Geen match in de database gevonden. Kies Bewerken en selecteer de juiste titel uit de suggesties.':`Geen database geladen voor ${it.console}. Laad die via Gegevens.`})}
+  if(it.kind==='game'&&!m)loadDB(it.console).then(db=>{const n=$('#dbnote');if(n)n.textContent=db?'Geen match in de database gevonden. Kies Bewerken en selecteer de juiste titel uit de suggesties.':`Geen database geladen voor ${it.console}. Laad die via Gegevens.`});
+  if(it.kind==='hw')fillHW(it)}
+const fillHW=async it=>{const p=await platFor(it.console),el=$('#hwinfo');if(!el||!p||cur!==it)return;
+  const r=[['Modelnummer',it.title],['Fabrikant',p.mf||p.dev],['Uitgebracht',p.y],['Processor',p.cpu],['Geheugen',p.mem],['Graphics',p.gfx],['Geluid',p.snd],['Display',p.disp],['Media',p.media],['Controllers',p.ctl]].filter(x=>x[1]);
+  el.innerHTML=`<dl class="meta">${r.map(([a,b])=>`<dt>${a}</dt><dd>${esc(b)}</dd>`).join('')}</dl>${p.notes?`<details class="ov"><summary>Beschrijving</summary><p>${esc(p.notes)}</p></details>`:''}`};
 const flash=t=>{const s=$('#saved');if(s){s.textContent=t;clearTimeout(flash.t);flash.t=setTimeout(()=>s.textContent='',1800)}};
-function rate(n){cur.rating=cur.rating===n?0:n;$$('[data-star]',sheet).forEach(b=>b.classList.toggle('on',+b.dataset.star<=cur.rating));save();renderCatalog();flash('Opgeslagen')}
+function rate(n){cur.rating=cur.rating===n?0:n;$$('[data-star]',sheet).forEach(b=>b.classList.toggle('on',+b.dataset.star<=cur.rating));save();renderCatalog(true);flash('Opgeslagen')}
 const saveReview=()=>{const v=$('#rev')?.value;if(cur&&v!==undefined&&v!==cur.review){cur.review=v;save();flash('Opgeslagen')}};
 
 async function shrink(file){return new Promise((ok,no)=>{const img=new Image(),u=URL.createObjectURL(file);
@@ -545,13 +683,13 @@ function bindForm(f,d){
   $('#cdel').addEventListener('click',()=>{img='';prev()});
   f.addEventListener('submit',async e=>{e.preventDefault();
     const c=E.console.value.trim(),t=E.title.value.trim();if(!c||!t)return;
-    const hw=f.dataset.kind==='hw',o=cur||{id:uid(),rating:0,review:'',added:Date.now()};
+    const hw=f.dataset.kind==='hw',o=cur||{id:uid(),rating:0,review:'',added:Date.now(),local:true};
     if(!meta&&!hw){const x=(await loadDB(c))?.map.get(key(t));if(x)meta=metaOf(x)}
     Object.assign(o,{kind:hw?'hw':'game',console:c,title:t,price:Math.max(0,parseFloat(E.price.value)||0),digital:!hw&&E.digital.checked,extra:E.extra.value.trim(),cover:img||undefined,meta:hw?null:meta});
-    if(!cur)items.push(o);cur=null;save();close_();render();toast('Opgeslagen')});
+    if(!cur)items.push(o);cur=null;save();close_();render(true);toast('Opgeslagen')});
   loadCon()}
 const close_=()=>{if(sheet.open)sheet.close()};
-function remove(id){const i=items.findIndex(x=>x.id===id);if(i<0)return;const [it]=items.splice(i,1);save();close_();render();toast(`"${it.title}" verwijderd`,()=>{items.splice(i,0,it);save();render()})}
+function remove(id){const i=items.findIndex(x=>x.id===id);if(i<0)return;const [it]=items.splice(i,1);save();close_();render(true);toast(`"${it.title}" verwijderd`,()=>{items.splice(i,0,it);save();render(true)})}
 let toastT;
 function toast(msg,undo){const t=$('#toast');t.innerHTML=`<span>${esc(msg)}</span>${undo?'<button>Ongedaan maken</button>':''}`;t.hidden=false;
   if(undo)$('button',t).onclick=()=>{undo();t.hidden=true};clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,undo?6000:2200)}
@@ -571,17 +709,28 @@ function renderOverview(){
     :`<h1>Nog niets om te tonen</h1><p class="mute">Voeg items toe of importeer je Excel-bestand bij Gegevens.</p>`}
 
 /* ---------- gegevens ---------- */
-let installEvt;addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;if(!$('#p-gegevens').hidden)renderData()});
+let installEvt;addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;$('#hinst').hidden=false;if(!$('#p-gegevens').hidden)renderData()});
+addEventListener('appinstalled',()=>{installEvt=null;$('#hinst').hidden=true});
 function renderData(){
   $('#p-gegevens').innerHTML=`<h1>Gegevens</h1><p class="mute">Alles staat lokaal op dit toestel en werkt offline.</p>
   <div class="panel"><h2>Excel</h2><p>Importeren vervangt de lijst; covers en reviews van bestaande items blijven behouden. Kolommen: <code>Console, Game_Titel, Prijs, Digital, Extra</code> en op blad Hardware <code>Hardware, Hardware_Titel, Prijs, Extra</code>.</p>
-    <div class="row"><label class="ghost file">Excel importeren<input type="file" id="imp" accept=".xlsx,.xls" hidden></label><button class="primary" id="exp">Excel exporteren</button></div></div>
+    <div class="row"><label class="ghost file">Excel importeren<input type="file" id="imp" accept=".xlsx,.xls" hidden></label><button class="primary" id="exp">Excel exporteren</button><button class="ghost" id="seedchk">Controleer op nieuwe database.xlsx</button></div></div>
   <div class="panel"><h2>Back-up</h2><p>Volledige back-up inclusief covers (JSON).</p>
     <div class="row"><button class="ghost" id="bk">Back-up maken</button><label class="ghost file">Back-up terugzetten<input type="file" id="rs" accept=".json" hidden></label></div></div>
-  <div class="panel"><h2>Titeldatabases</h2><p>Per console een LaunchBox-bestand, bijv. <code>PS3games.xml</code> in de map <code>db/</code>, of kies de bestanden hieronder (meerdere tegelijk, ook <code>.json</code>). Je krijgt autocomplete, hoes, beschrijving, genre, ontwikkelaar en alternatieve titels per regio. Zonder internet blijft de gekleurde hoes.</p>
+  <div class="panel"><h2>Titeldatabases</h2><p>Per console een LaunchBox-bestand, bijv. <code>PS3games.xml</code> (of <code>Windowsgames_part_1.xml</code> enzovoort) en <code>Platforms.xml</code> in de map <code>db/</code>, of kies de bestanden hieronder (alle delen van een console tegelijk). Je krijgt autocomplete, hoes, beschrijving, genre, ontwikkelaar en alternatieve titels per regio. Zonder internet blijft de gekleurde hoes.</p>
     <div class="row"><label class="primary file">Bestanden kiezen<input type="file" id="dbf" accept=".xml,.json" multiple hidden></label><button class="ghost" id="en">Games opnieuw koppelen</button><button class="ghost" id="dbclear">Cache vernieuwen</button><a class="ghost" href="#/controle">Namen controleren</a></div>
     <div id="dbstat" style="margin-top:14px"></div></div>
-  <div class="panel"><h2>App</h2><p>${installEvt?'Installeer deze collectie op je beginscherm.':navigator.serviceWorker?.controller?'Offline beschikbaar. Installeren kan via het browsermenu.':'Offline modus wordt ingesteld na het eerste bezoek via http(s).'}</p>
+  <div class="panel"><h2>Covers offline</h2><p>Hoezen laden pas als ze in beeld komen. Sla hier de hoezen van je collectie op om ze ook zonder internet te zien.</p>
+    <div class="row"><button class="ghost" id="covpre">Covers offline opslaan</button><span id="covstat" class="mute"></span></div></div>
+  <div class="panel"><h2>Case-formaten</h2><p>Verhouding van de hoezen per console.</p>
+    ${[...new Set(items.map(i=>i.console))].sort(cmpCon).map(c=>{const k=slug(c),cur=PREFS.aspect[k];return`<div class="row" style="align-items:center;margin:6px 0"><span style="flex:1">${esc(c)}</span><select data-ar="${k}" style="width:auto"><option value="">Standaard (${(AR[k]||.75)})</option>${ARPRESETS.map(([l,v])=>`<option value="${v}"${cur===v?' selected':''}>${l}</option>`).join('')}</select></div>`}).join('')}</div>
+  <div class="panel"><h2>Google Drive-back-up</h2><p>Versleutelde back-up in de verborgen app-map van je Drive. Opslaan kan alleen na je wachtwoord; zonder wachtwoord kan niemand de back-up lezen.</p>
+    <label class="f" style="display:block;margin-bottom:8px"><span>Google Client-ID</span><input id="gcid" value="${esc(PREFS.clientId||'')}" placeholder="123456-abc.apps.googleusercontent.com" autocomplete="off"></label>
+    <div class="row"><button class="ghost" id="gsave">Client-ID bewaren</button>${PREFS.pw?'<button class="ghost" id="pwchg">Wachtwoord wijzigen</button>':'<button class="ghost" id="pwset">Wachtwoord instellen</button>'}</div>
+    <div class="row" style="margin-top:12px"><button class="primary" id="dsave">Opslaan naar Drive</button><button class="ghost" id="drest">Terugzetten van Drive</button></div>
+    <p style="margin:10px 0 0">${PREFS.lastDrive?'Laatst opgeslagen: '+new Date(PREFS.lastDrive).toLocaleString('nl-BE'):'Nog niet opgeslagen.'}</p>
+    <details class="ov" style="margin:10px 0 0"><summary>Client-ID aanmaken</summary><p>1) Ga naar console.cloud.google.com, maak een project en zet de Google Drive API aan. 2) Stel het OAuth-toestemmingsscherm in (extern, testmodus) en voeg jezelf toe als testgebruiker. 3) Maak onder Inloggegevens een OAuth-client-ID van het type Webtoepassing en zet het adres van deze site bij Geautoriseerde JavaScript-bronnen (https verplicht, of http://localhost). 4) Plak het Client-ID hierboven.</p></details></div>
+  <div class="panel"><h2>App</h2><p>${installEvt?'Installeer deze collectie op je beginscherm.':navigator.serviceWorker?.controller?'Offline beschikbaar. Op Android: browsermenu, dan Toevoegen aan startscherm of App installeren.':'Offline modus wordt ingesteld na het eerste bezoek via https of localhost.'}</p>
     <div class="row">${installEvt?'<button class="primary" id="inst">Installeren</button>':''}<button class="danger" id="wipe">Alle gegevens wissen</button></div></div>`;dbStatus()}
 async function dbStatus(){const el=$('#dbstat');if(!el)return;
   const cons=[...new Set(items.filter(i=>i.kind==='game').map(i=>i.console))].sort(cmpCon);
@@ -591,7 +740,7 @@ async function dbStatus(){const el=$('#dbstat');if(!el)return;
 
 /* ---------- namen controleren ---------- */
 const CK={con:'',all:false,sug:{}};
-async function renderCheck(){const el=$('#p-controle');
+async function renderCheck(keep){const el=$('#p-controle'),y=keep?scrollY:0;
   const games=items.filter(i=>i.kind==='game'),cons=[...new Set(games.map(i=>i.console))].sort(cmpCon),dbs={};
   for(const c of cons)dbs[c]=await loadDB(c);
   if(curPage()!=='controle')return;
@@ -606,14 +755,14 @@ async function renderCheck(){const el=$('#p-controle');
   <p class="mute">${nl(linked.length)} van ${nl(withDb.length)} games zijn gekoppeld aan de database. ${nl(todo.length)} wachten op controle${noDb.length?`, ${nl(noDb.length)} hebben nog geen database`:''}. Kies de juiste naam (regio's staan tussen haakjes) en de titel wordt aangepast en aangevuld met jaar, ontwikkelaar en uitgever.</p>
   <div class="toolbar" style="position:static;padding:6px 0 14px"><select id="ccon" aria-label="Console"><option value="">Alle consoles</option>${cons.filter(c=>dbs[c]).map(c=>`<option${CK.con===c?' selected':''}>${esc(c)}</option>`).join('')}</select>
   <label class="chk"><input type="checkbox" id="call"${CK.all?' checked':''}> Toon ook gekoppelde</label></div>
-  <ul class="clist">${rows.map(row).join('')||'<li class="empty"><h2>Alles gecontroleerd</h2></li>'}</ul>`}
+  <ul class="clist">${rows.map(row).join('')||'<li class="empty"><h2>Alles gecontroleerd</h2></li>'}</ul>`;if(keep)scrollTo(0,y)}
 function pickName(spec){const[id,k]=spec.split(':'),it=find(id),r=CK.sug[id]?.[k];if(!it||!r)return;
-  const old={title:it.title,meta:it.meta,skip:it.skip};it.title=r.t;it.meta=metaOf(r);delete it.skip;save();renderCheck();
-  toast(`Naam aangepast naar "${r.t}"`,()=>{Object.assign(it,old);save();renderCheck()})}
+  const old={title:it.title,meta:it.meta,skip:it.skip};it.title=r.t;it.meta=metaOf(r);delete it.skip;save();renderCheck(true);
+  toast(`Naam aangepast naar "${r.t}"`,()=>{Object.assign(it,old);save();renderCheck(true)})}
 
 /* ---------- router + events ---------- */
 const PAGES=['collectie','overzicht','gegevens','controle'];
-function render(){const p=curPage();if(p==='collectie')renderCatalog();else if(p==='overzicht')renderOverview();else if(p==='controle')renderCheck()}
+function render(keep){const p=curPage();if(p==='collectie')renderCatalog(keep);else if(p==='overzicht')renderOverview();else if(p==='controle')renderCheck(keep)}
 const curPage=()=>PAGES.includes(location.hash.slice(2))?location.hash.slice(2):'collectie';
 function route(){const p=curPage();PAGES.forEach(x=>$('#p-'+x).hidden=x!==p);
   $$('[data-nav]').forEach(a=>a.setAttribute('aria-current',a.dataset.nav===p||(p==='controle'&&a.dataset.nav==='gegevens')?'page':'false'));
@@ -628,7 +777,7 @@ document.addEventListener('click',async e=>{const t=e.target,c=s=>t.closest(s);l
   if(x=c('[data-chip]')){const k=x.dataset.chip;
     if(k==='all')resetFilters();else{if(k.startsWith('c:'))F.consoles.delete(k.slice(2));else if(k==='type')F.type='all';else if(k==='price')F.min=F.max='';else if(k==='rated')F.rated=false;else if(k==='q')F.q='';syncInputs();renderCatalog()}return}
   if(x=c('[data-pick]')){pickName(x.dataset.pick);return}
-  if(x=c('[data-cskip]')){const it=find(x.dataset.cskip);if(it){it.skip=true;save();renderCheck()}return}
+  if(x=c('[data-cskip]')){const it=find(x.dataset.cskip);if(it){it.skip=true;save();renderCheck(true)}return}
   if(x=c('[data-cedit]')){form(x.dataset.cedit);return}
   if(x=c('#kind button')){F.kind=x.dataset.kind;F.consoles.clear();renderCatalog();return}
   if(c('#fopen')){toggleFilters(true);return}
@@ -637,15 +786,26 @@ document.addEventListener('click',async e=>{const t=e.target,c=s=>t.closest(s);l
   if(x=c('[data-star]')){rate(+x.dataset.star);return}
   if(c('[data-edit]')){saveReview();form(cur.id);return}
   if(x=c('[data-del]')){if(!x.dataset.armed){x.dataset.armed=1;x.textContent='Zeker weten?';setTimeout(()=>{delete x.dataset.armed;x.textContent='Verwijderen'},3000);return}remove(cur.id);return}
+  if(c('[data-more]')){const b=c('[data-more]'),o=$('.dmore',sheet).classList.toggle('open');b.textContent=o?'Minder details':'Meer details';b.setAttribute('aria-expanded',o);return}
+  if(c('#seedchk')){await checkSeed(true);return}
+  if(c('#covpre')){await prefetchCovers();return}
+  if(c('#gsave')){PREFS.clientId=$('#gcid').value.trim();await savePrefs();toast('Client-ID bewaard');return}
+  if(c('#pwset')){await newPassword();return}
+  if(c('#pwchg')){await changePassword();return}
+  if(c('#dsave')){await driveSave();return}
+  if(c('#drest')){await driveRestore();return}
+  if(c('#inst')||c('#hinst')){if(installEvt){installEvt.prompt();installEvt=null;$('#hinst').hidden=true;if(curPage()==='gegevens')renderData()}return}
   if(c('#exp')){try{await exportXLSX()}catch(err){toast(err.message)}return}
   if(c('#bk')){dl(new Blob([JSON.stringify(items)],{type:'application/json'}),`Backup_${stamp()}.json`);return}
   if(c('#dbclear')){const ks=await idb.keys();for(const k of ks)if(String(k).startsWith('dbc:'))await idb.del(k);Object.keys(GDB).forEach(k=>delete GDB[k]);toast('Cache gewist; databases worden opnieuw ingelezen');renderData();return}
-  if(c('[data-nextart]')){saveReview();const m=cur.meta;m.imi=((m.imi||0)+1)%m.ims.length;save();detail(cur.id);renderCatalog();return}
+  if(c('[data-nextart]')){saveReview();const m=cur.meta;m.imi=((m.imi||0)+1)%m.ims.length;save();detail(cur.id);renderCatalog(true);return}
   if(c('#en')){toast('Bezig…');const n=await enrich();toast(n?`${n} games aangevuld`:'Niets nieuws gevonden');return}
   if(c('#inst')){installEvt.prompt();installEvt=null;renderData();return}
   if(c('#wipe')){if(confirm('Alle items en reviews van dit toestel wissen?')){items=[];await idb.set('items',[]);toast('Gewist');render()}return}
 });
-sheet.addEventListener('click',e=>{if(e.target===sheet){saveReview();close_()}});
+let downOnBackdrop=false;
+sheet.addEventListener('pointerdown',e=>{downOnBackdrop=e.target===sheet});
+sheet.addEventListener('click',e=>{if(e.target===sheet&&downOnBackdrop){saveReview();close_()}downOnBackdrop=false});
 sheet.addEventListener('close',()=>{saveReview();cur=null});
 sheet.addEventListener('focusout',e=>{if(e.target.id==='rev')saveReview()});
 document.addEventListener('change',async e=>{const t=e.target,f=t.files?.[0];
@@ -653,6 +813,7 @@ document.addEventListener('change',async e=>{const t=e.target,f=t.files?.[0];
   else if(t.name==='ftype'){F.type=t.value;renderCatalog()}
   else if(t.id==='frated'){F.rated=t.checked;renderCatalog()}
   else if(t.id==='sort'){F.sort=t.value;renderCatalog()}
+  else if(t.dataset.ar!==undefined){if(t.value)PREFS.aspect[t.dataset.ar]=+t.value;else delete PREFS.aspect[t.dataset.ar];savePrefs();toast('Case-formaat bewaard')}
   else if(t.id==='ccon'){CK.con=t.value;renderCheck()}
   else if(t.id==='call'){CK.all=t.checked;renderCheck()}
   else if(t.id==='imp'&&f){try{await loadXLSX();const next=fromWorkbook(XLSX.read(await f.arrayBuffer(),{type:'array'}));
@@ -666,10 +827,10 @@ addEventListener('keydown',e=>{if(e.key==='Escape')toggleFilters(false)});
 
 /* ---------- start ---------- */
 (async()=>{
-  try{items=(await idb.get('items'))||null}catch{items=null}
-  if(!items){items=[];try{const r=await fetch('database.xlsx');if(r.ok){await loadXLSX();items=fromWorkbook(XLSX.read(await r.arrayBuffer(),{type:'array'}));save()}}catch{}}
+  try{items=(await idb.get('items'))||[]}catch{items=[]}
+  try{Object.assign(PREFS,(await idb.get('prefs'))||{});PREFS.aspect||={}}catch{}
   navigator.storage?.persist?.();
-  syncInputs();route();enrich();
+  syncInputs();route();enrich();checkSeed();
   if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 })();
 </script>
