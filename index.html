@@ -384,7 +384,13 @@ async function getPw(){
   const first=!PREFS.drvInit,v=await askPassword('Wachtwoord voor Google Drive',(first?NEWPW:PWFIELD)+REMEMBER);if(!v)return null;
   if(first&&v.pw!==v.pw2){toast('Wachtwoorden komen niet overeen');return null}
   SESSION_PW=v.pw;if(v.rem){PREFS.rememberPw=true;PREFS.savedPw=v.pw;await savePrefs()}return v.pw}
-const driveErr=e=>{if(e.message==='Wachtwoord onjuist'){SESSION_PW=null;delete PREFS.savedPw;PREFS.rememberPw=false;savePrefs()}toast(e.message||'Mislukt')};
+const driveErr=e=>{
+  if(e.message==='Wachtwoord onjuist'){SESSION_PW=null;delete PREFS.savedPw;PREFS.rememberPw=false;savePrefs();
+    toast(PREFS.drvInit?'Wachtwoord onjuist. Gebruik het wachtwoord van je eerste keer opslaan. Vergeten? Zie "Wachtwoord onjuist of vergeten" bij Google Drive.'
+      :'Wachtwoord onjuist: je script heeft al een ander wachtwoord onthouden, waarschijnlijk van een eerdere (mislukte) poging. Zie "Wachtwoord onjuist of vergeten" bij Google Drive.');return}
+  toast(e.message||'Mislukt')};
+async function resetPwLocal(){if(!confirm('Lokaal wachtwoord vergeten en bij de volgende sync een nieuw wachtwoord kiezen?\n\nVerwijder eerst in Apps Script de waarde "verifier" (Project-instellingen, Script-eigenschappen), anders blijft het script het oude wachtwoord eisen.'))return;
+  SESSION_PW=null;delete PREFS.savedPw;PREFS.rememberPw=false;PREFS.drvInit=false;await savePrefs();toast('Klaar. Kies bij de volgende sync je nieuwe wachtwoord (twee keer).');if(curPage()==='gegevens')renderData()}
 async function uploadNow(pw){const ts=Date.now();
   await scriptCall({action:'save',key:await verifier(pw),data:await seal(pw,{v:1,ts,items,aspect:PREFS.aspect})});
   SESSION_PW=pw;PREFS.drvInit=true;PREFS.lastSync=ts;PREFS.dirty=false;await savePrefs()}
@@ -767,7 +773,7 @@ const close_=()=>{if(sheet.open)sheet.close()};
 function remove(id){const i=items.findIndex(x=>x.id===id);if(i<0)return;const [it]=items.splice(i,1);save();close_();render(true);toast(`"${it.title}" verwijderd`,()=>{items.splice(i,0,it);save();render(true)})}
 let toastT;
 function toast(msg,undo){const t=$('#toast');t.innerHTML=`<span>${esc(msg)}</span>${undo?'<button>Ongedaan maken</button>':''}`;t.hidden=false;
-  if(undo)$('button',t).onclick=()=>{undo();t.hidden=true};clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,undo?6000:2200)}
+  if(undo)$('button',t).onclick=()=>{undo();t.hidden=true};clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,undo?6000:Math.max(2200,msg.length*55))}
 
 /* ---------- overzicht ---------- */
 function renderOverview(){
@@ -794,6 +800,8 @@ const DATA_SECTIONS=[
     <label class="chk" style="margin:14px 0 8px"><input type="checkbox" id="dauto"${PREFS.autoDrive?' checked':''}> Automatisch synchroniseren (bij het openen en na wijzigingen)</label>
     <label class="chk" style="margin:0 0 14px"><input type="checkbox" id="drem"${PREFS.rememberPw?' checked':''}> Wachtwoord onthouden op dit toestel (bewaard in de browser)</label>
     <div class="row"><button class="ghost" id="dsave">Alleen uploaden</button><button class="ghost" id="drest">Terugzetten van Drive</button></div>
+    <details class="ov" style="margin:12px 0 0"><summary>Wachtwoord onjuist of vergeten</summary><p>Het script onthoudt het wachtwoord van de eerste keer dat er iets werd opgeslagen. Ook een eerste poging die halverwege mislukte (bijvoorbeeld voordat Drive toestemming had) legt dat wachtwoord al vast. Opnieuw beginnen zonder de scriptcode te wijzigen: 1) Open je project op script.google.com, kies links Project-instellingen (tandwiel) en bij Script-eigenschappen de waarde "verifier" verwijderen. 2) Tik hieronder op Wachtwoord opnieuw instellen. 3) Tik op Nu synchroniseren en kies je nieuwe wachtwoord, twee keer.</p>
+    <div class="row"><button class="ghost" id="pwreset">Wachtwoord opnieuw instellen</button></div></details>
     <p style="margin:10px 0 0">${PREFS.lastSync?'Laatst gesynchroniseerd: '+new Date(PREFS.lastSync).toLocaleString('nl-BE'):'Nog niet gesynchroniseerd.'}${PREFS.dirty?' Er zijn lokale wijzigingen die nog niet op Drive staan.':''}</p>
     <details class="ov" style="margin:10px 0 0"><summary>Eenmalig instellen (2 minuten)</summary><p>1) Ga naar script.google.com en kies Nieuw project. 2) Verwijder eerst alles in de editor (Ctrl+A, dan Delete) en plak dan de code hieronder. Die is precies 21 regels en eindigt met één }; een extra } onderaan geeft de fout "Unexpected token }". 3) Kies Implementeren, Nieuwe implementatie, type Web-app, Uitvoeren als: Ik, Toegang: Iedereen. 4) Geef toestemming voor je Drive als Google erom vraagt. 5) Kopieer de Web-app-URL hierboven en sla meteen één keer op, zodat jouw wachtwoord vastgelegd wordt. Een vergeten of nieuw wachtwoord: verwijder in Project-instellingen, Script-eigenschappen de waarde "verifier".</p>
     <pre style="white-space:pre-wrap;background:var(--card);padding:10px;border-radius:8px;font-size:.75rem;max-height:220px;overflow:auto;user-select:all">${esc(GAS_CODE)}</pre>
@@ -877,6 +885,7 @@ document.addEventListener('click',async e=>{const t=e.target,c=s=>t.closest(s);l
   if(c('#gcopy')){try{await navigator.clipboard.writeText(GAS_CODE);toast('Code gekopieerd')}catch{toast('Selecteer de code en kopieer handmatig')}return}
   if(c('#bkshare')){await shareBackup();return}
   if(c('#dsync')||c('#hsync')){await driveSync();return}
+  if(c('#pwreset')){await resetPwLocal();return}
   if(c('#dsave')){await driveSave();return}
   if(c('#drest')){await driveRestore();return}
   if(c('#inst')||c('#hinst')){if(installEvt){installEvt.prompt();installEvt=null;$('#hinst').hidden=true;if(curPage()==='gegevens')renderData()}return}
